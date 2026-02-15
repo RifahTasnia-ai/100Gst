@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState } from 'react'
 import { renderLatex } from '../utils/latex'
 import SubmissionStatus from './SubmissionStatus'
 import './ResultSummary.css'
@@ -19,8 +19,8 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
   }
 
   const [filter, setFilter] = useState('all')
-  const [activeQuestion, setActiveQuestion] = useState(null)
-  const questionRefs = useRef({})
+  // Single question popup — null means closed
+  const [viewingQuestion, setViewingQuestion] = useState(null)
 
   function getCongratulatoryMessage() {
     if (accuracy >= 90) return 'অসাধারণ! তুমি চমৎকার করেছো! 🏆'
@@ -47,11 +47,19 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
     })
   }
 
-  function scrollToQuestion(qId) {
-    setActiveQuestion(qId)
-    const el = questionRefs.current[qId]
-    if (el) {
-      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+  // Open single question popup
+  function openQuestion(qId) {
+    const q = questions.find(q => q.id === qId)
+    if (q) setViewingQuestion(q)
+  }
+
+  // Navigate prev/next in popup
+  function navigateQuestion(direction) {
+    if (!viewingQuestion) return
+    const idx = questions.findIndex(q => q.id === viewingQuestion.id)
+    const nextIdx = idx + direction
+    if (nextIdx >= 0 && nextIdx < questions.length) {
+      setViewingQuestion(questions[nextIdx])
     }
   }
 
@@ -59,7 +67,6 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
     window.print()
   }
 
-  // Determine badge
   function getBadge() {
     if (accuracy >= 90) return { icon: '🥇', label: 'স্বর্ণ পদক', cls: 'gold' }
     if (accuracy >= 75) return { icon: '🥈', label: 'রৌপ্য পদক', cls: 'silver' }
@@ -69,6 +76,52 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
 
   const badge = getBadge()
   const filteredQuestions = getFilteredQuestions()
+
+  // Render a single question card (reused in both list and popup)
+  function renderQuestionCard(q) {
+    const { selected, hasAnswer, isCorrect } = getQuestionStatus(q)
+    const statusCls = isCorrect ? 'correct' : hasAnswer ? 'wrong' : 'unanswered'
+    const options = [
+      { key: 'a', text: q.options.a },
+      { key: 'b', text: q.options.b },
+      { key: 'c', text: q.options.c },
+      { key: 'd', text: q.options.d },
+    ]
+
+    return (
+      <>
+        <div className="rs-q-header">
+          <span className="rs-q-num bengali">প্রশ্ন {q.id}</span>
+          <span className={`rs-q-badge ${statusCls}`}>
+            {isCorrect ? '✓ সঠিক' : hasAnswer ? '✗ ভুল' : '— বাদ'}
+          </span>
+        </div>
+        <div className="rs-q-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(q.question) }} />
+        <div className="rs-options">
+          {options.map(opt => {
+            let optCls = ''
+            if (opt.key === q.correctOptionId) optCls = 'correct-option'
+            if (hasAnswer && opt.key === selected && !isCorrect) optCls += ' wrong-option'
+            if (hasAnswer && opt.key === selected && isCorrect) optCls = 'correct-option selected'
+            return (
+              <div key={opt.key} className={`rs-option ${optCls}`}>
+                <span className="rs-opt-letter">{opt.key.toUpperCase()}</span>
+                <span className="rs-opt-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(opt.text) }} />
+                {opt.key === q.correctOptionId && <span className="rs-opt-check">✓</span>}
+                {hasAnswer && opt.key === selected && !isCorrect && <span className="rs-opt-cross">✗</span>}
+              </div>
+            )
+          })}
+        </div>
+        {q.explanation && (
+          <div className="rs-explanation">
+            <div className="rs-explanation-header bengali">💡 ব্যাখ্যা</div>
+            <div className="rs-explanation-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(q.explanation) }} />
+          </div>
+        )}
+      </>
+    )
+  }
 
   return (
     <div className="result-summary">
@@ -93,9 +146,7 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
               <circle
                 className="rs-ring-fill"
                 cx="60" cy="60" r="52"
-                style={{
-                  strokeDasharray: `${(totalScore / total) * 327} 327`
-                }}
+                style={{ strokeDasharray: `${(totalScore / total) * 327} 327` }}
               />
             </svg>
             <div className="rs-ring-text">
@@ -158,9 +209,9 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
           </div>
         )}
 
-        {/* ===== COMPACT ANSWER GRID ===== */}
+        {/* ===== COMPACT ANSWER GRID — click opens popup ===== */}
         <div className="rs-answer-grid-section">
-          <h2 className="rs-section-title bengali">�️ উত্তর সারসংক্ষেপ</h2>
+          <h2 className="rs-section-title bengali">🗂️ উত্তর সারসংক্ষেপ <span className="rs-hint bengali">(নম্বরে ক্লিক করুন)</span></h2>
           <div className="rs-answer-grid">
             {questions.map((q) => {
               const { hasAnswer, isCorrect } = getQuestionStatus(q)
@@ -168,8 +219,8 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
               return (
                 <button
                   key={q.id}
-                  className={`rs-grid-tile ${cls} ${activeQuestion === q.id ? 'active' : ''}`}
-                  onClick={() => scrollToQuestion(q.id)}
+                  className={`rs-grid-tile ${cls} ${viewingQuestion?.id === q.id ? 'active' : ''}`}
+                  onClick={() => openQuestion(q.id)}
                   title={`প্রশ্ন ${q.id}`}
                 >
                   {q.id}
@@ -183,6 +234,39 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
             <span><span className="rs-legend-dot skipped" /> বাদ</span>
           </div>
         </div>
+
+        {/* ===== SINGLE QUESTION POPUP ===== */}
+        {viewingQuestion && (
+          <div className="rs-popup-overlay" onClick={() => setViewingQuestion(null)}>
+            <div className="rs-popup" onClick={(e) => e.stopPropagation()}>
+              {/* Popup navigation */}
+              <div className="rs-popup-nav">
+                <button
+                  className="rs-popup-nav-btn bengali"
+                  onClick={() => navigateQuestion(-1)}
+                  disabled={questions.findIndex(q => q.id === viewingQuestion.id) === 0}
+                >
+                  ← আগের
+                </button>
+                <span className="rs-popup-counter bengali">
+                  {viewingQuestion.id} / {questions.length}
+                </span>
+                <button
+                  className="rs-popup-nav-btn bengali"
+                  onClick={() => navigateQuestion(1)}
+                  disabled={questions.findIndex(q => q.id === viewingQuestion.id) === questions.length - 1}
+                >
+                  পরের →
+                </button>
+                <button className="rs-popup-close" onClick={() => setViewingQuestion(null)}>✕</button>
+              </div>
+              {/* Question content */}
+              <div className={`rs-popup-body ${getQuestionStatus(viewingQuestion).isCorrect ? 'correct' : getQuestionStatus(viewingQuestion).hasAnswer ? 'wrong' : 'unanswered'}`}>
+                {renderQuestionCard(viewingQuestion)}
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ===== PDF & FILTER BAR ===== */}
         <div className="rs-toolbar">
@@ -207,67 +291,14 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
           </button>
         </div>
 
-        {/* ===== FULL QUESTION REVIEW ===== */}
+        {/* ===== FULL QUESTION LIST (for PDF / filter view) ===== */}
         <div className="rs-questions-list">
           {filteredQuestions.map((q) => {
             const { selected, hasAnswer, isCorrect } = getQuestionStatus(q)
             const statusCls = isCorrect ? 'correct' : hasAnswer ? 'wrong' : 'unanswered'
-            const options = [
-              { key: 'a', text: q.options.a },
-              { key: 'b', text: q.options.b },
-              { key: 'c', text: q.options.c },
-              { key: 'd', text: q.options.d },
-            ]
-
             return (
-              <div
-                key={q.id}
-                className={`rs-question-card ${statusCls}`}
-                ref={el => questionRefs.current[q.id] = el}
-              >
-                {/* Question header */}
-                <div className="rs-q-header">
-                  <span className="rs-q-num bengali">প্রশ্ন {q.id}</span>
-                  <span className={`rs-q-badge ${statusCls}`}>
-                    {isCorrect ? '✓ সঠিক' : hasAnswer ? '✗ ভুল' : '— বাদ'}
-                  </span>
-                </div>
-
-                {/* Question text */}
-                <div
-                  className="rs-q-text bengali"
-                  dangerouslySetInnerHTML={{ __html: renderLatex(q.question) }}
-                />
-
-                {/* Options */}
-                <div className="rs-options">
-                  {options.map(opt => {
-                    let optCls = ''
-                    if (opt.key === q.correctOptionId) optCls = 'correct-option'
-                    if (hasAnswer && opt.key === selected && !isCorrect) optCls += ' wrong-option'
-                    if (hasAnswer && opt.key === selected && isCorrect) optCls = 'correct-option selected'
-
-                    return (
-                      <div key={opt.key} className={`rs-option ${optCls}`}>
-                        <span className="rs-opt-letter">{opt.key.toUpperCase()}</span>
-                        <span className="rs-opt-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(opt.text) }} />
-                        {opt.key === q.correctOptionId && <span className="rs-opt-check">✓</span>}
-                        {hasAnswer && opt.key === selected && !isCorrect && <span className="rs-opt-cross">✗</span>}
-                      </div>
-                    )
-                  })}
-                </div>
-
-                {/* Solution / Explanation */}
-                {q.explanation && (
-                  <div className="rs-explanation">
-                    <div className="rs-explanation-header bengali">💡 ব্যাখ্যা</div>
-                    <div
-                      className="rs-explanation-text bengali"
-                      dangerouslySetInnerHTML={{ __html: renderLatex(q.explanation) }}
-                    />
-                  </div>
-                )}
+              <div key={q.id} className={`rs-question-card ${statusCls}`}>
+                {renderQuestionCard(q)}
               </div>
             )
           })}

@@ -860,3 +860,135 @@
     transform: scale(1);
   }
 }
+
+/* ===== SINGLE QUESTION POPUP ===== */
+.rs-popup-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.75);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+  padding: 16px;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+.rs-popup {
+  background: white;
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: scaleIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  overflow: hidden;
+}
+
+.rs-popup-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background: var(--slate-50);
+  border-bottom: 1px solid var(--slate-200);
+}
+
+.rs-popup-nav-btn {
+  background: white;
+  border: 1px solid var(--slate-300);
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  color: var(--slate-700);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+}
+
+.rs-popup-nav-btn:hover:not(:disabled) {
+  background: var(--slate-100);
+  border-color: var(--slate-400);
+}
+
+.rs-popup-nav-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background: var(--slate-50);
+}
+
+.rs-popup-counter {
+  font-weight: 700;
+  color: var(--slate-600);
+  font-size: 0.9rem;
+}
+
+.rs-popup-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  color: var(--slate-500);
+  cursor: pointer;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.rs-popup-close:hover {
+  background: var(--slate-200);
+  color: var(--slate-800);
+}
+
+.rs-popup-body {
+  padding: 24px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+/* Question card styling reset for popup */
+.rs-popup-body .rs-q-header {
+  margin-top: 0;
+}
+
+/* Border left status */
+.rs-popup-body.correct {
+  border-left: 6px solid #10b981;
+}
+
+.rs-popup-body.wrong {
+  border-left: 6px solid #ef4444;
+}
+
+.rs-popup-body.unanswered {
+  border-left: 6px solid #94a3b8;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  .rs-popup-body {
+    padding: 16px;
+  }
+
+  .rs-popup-nav {
+    padding: 12px;
+  }
+
+  .rs-popup-nav-btn {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+/* Hide popup in print */
+@media print {
+  .rs-popup-overlay {
+    display: none !important;
+  }
+}
