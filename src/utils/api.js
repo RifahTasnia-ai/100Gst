@@ -63,7 +63,7 @@ export async function loadSubmissions() {
   const isDev = window.location.hostname === 'localhost'
   const url = isDev
     ? '/answers.json'
-    : 'https://raw.githubusercontent.com/maruf7705/80MCQ/main/answers.json'
+    : 'https://raw.githubusercontent.com/maruf7705/100GST/main/answers.json'
 
   let res;
   try {
@@ -156,7 +156,7 @@ export async function loadPendingStudents() {
   const isDev = window.location.hostname === 'localhost'
   const url = isDev
     ? '/pending-students.json'
-    : 'https://raw.githubusercontent.com/maruf7705/80MCQ/main/pending-students.json'
+    : 'https://raw.githubusercontent.com/maruf7705/100GST/main/pending-students.json'
 
   let res;
   try {
