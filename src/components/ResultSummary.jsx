@@ -1,8 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { renderLatex } from '../utils/latex'
 import SubmissionStatus from './SubmissionStatus'
-import AchievementBadge from './AchievementBadge'
-import PerformanceChart from './PerformanceChart'
 import './ResultSummary.css'
 
 function ResultSummary({ questions, answers, studentName, score, onRestart, questionFile, submissionStatus }) {
@@ -12,92 +10,36 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
   const pass = totalScore >= 60.0
 
   const subjectNames = {
-    'Biology': 'Biology',
-    'Chemistry': 'রসায়ন',
+    'Biology': 'জীববিজ্ঞান',
+    'Chemistry': 'রসায়ন',
     'ICT': 'আইসিটি',
     'Physics': 'পদার্থবিজ্ঞান',
+    'Mathematics': 'গণিত',
     'General': 'সাধারণ'
   }
 
-  // ... (rest of the state and hooks)
-
-  // Initialize expanded questions with wrong answers
-  const [expandedQuestions, setExpandedQuestions] = useState(() => {
-    const wrongIds = new Set()
-    questions.forEach(q => {
-      const selected = answers[q.id]
-      const isCorrect = selected === q.correctOptionId
-      const hasAnswer = selected !== undefined
-      // Auto-expand if wrong or unanswered
-      if (hasAnswer && !isCorrect) {
-        wrongIds.add(q.id)
-      }
-    })
-    return wrongIds
-  })
   const [filter, setFilter] = useState('all')
-  const [animatedCorrect, setAnimatedCorrect] = useState(0)
-  const [animatedWrong, setAnimatedWrong] = useState(0)
-  const hasAnimated = useRef(false)
-
-  useEffect(() => {
-    // Animate counters only once
-    if (!hasAnimated.current) {
-      hasAnimated.current = true
-      animateCounter(setAnimatedCorrect, correct)
-      animateCounter(setAnimatedWrong, wrong)
-    }
-  }, [])
-
-  function animateCounter(setter, target) {
-    const duration = 1000
-    const steps = 30
-    const increment = target / steps
-    let current = 0
-    const interval = setInterval(() => {
-      current += increment
-      if (current >= target) {
-        setter(target)
-        clearInterval(interval)
-      } else {
-        setter(Math.floor(current))
-      }
-    }, duration / steps)
-  }
-  // No external solution loading needed as explanation is now part of question object
-
-
-  function getSolution(questionId) {
-    const question = questions.find(q => q.id === questionId)
-    return question ? question.explanation : null
-  }
-
-  function toggleExpand(questionId) {
-    setExpandedQuestions(prev => {
-      const newSet = new Set(prev)
-      if (newSet.has(questionId)) {
-        newSet.delete(questionId)
-      } else {
-        newSet.add(questionId)
-      }
-      return newSet
-    })
-  }
+  const [activeQuestion, setActiveQuestion] = useState(null)
+  const questionRefs = useRef({})
 
   function getCongratulatoryMessage() {
-    if (accuracy >= 90) return 'অসাধারণ! তুমি চমৎকার করেছো!'
-    if (accuracy >= 75) return 'খুব ভালো! চমৎকার কাজ!'
-    if (accuracy >= 60) return 'ভালো করেছো! এগিয়ে চলো!'
-    if (pass) return 'পাস করেছো! অভিনন্দন!'
-    return 'পরবর্তীতে আরও ভাল করবে!'
+    if (accuracy >= 90) return 'অসাধারণ! তুমি চমৎকার করেছো! 🏆'
+    if (accuracy >= 75) return 'খুব ভালো! চমৎকার কাজ! 🌟'
+    if (accuracy >= 60) return 'ভালো করেছো! এগিয়ে চলো! 💪'
+    if (pass) return 'পাস করেছো! অভিনন্দন! ✅'
+    return 'পরবর্তীতে আরও ভাল করবে! 📚'
+  }
+
+  function getQuestionStatus(q) {
+    const selected = answers[q.id]
+    const hasAnswer = selected !== undefined
+    const isCorrect = hasAnswer && selected === q.correctOptionId
+    return { selected, hasAnswer, isCorrect }
   }
 
   function getFilteredQuestions() {
     return questions.filter((q) => {
-      const selected = answers[q.id]
-      const isCorrect = selected === q.correctOptionId
-      const hasAnswer = selected !== undefined
-
+      const { hasAnswer, isCorrect } = getQuestionStatus(q)
       if (filter === 'correct') return isCorrect
       if (filter === 'wrong') return hasAnswer && !isCorrect
       if (filter === 'unanswered') return !hasAnswer
@@ -105,89 +47,110 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
     })
   }
 
+  function scrollToQuestion(qId) {
+    setActiveQuestion(qId)
+    const el = questionRefs.current[qId]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
+    }
+  }
+
+  function handlePrint() {
+    window.print()
+  }
+
+  // Determine badge
+  function getBadge() {
+    if (accuracy >= 90) return { icon: '🥇', label: 'স্বর্ণ পদক', cls: 'gold' }
+    if (accuracy >= 75) return { icon: '🥈', label: 'রৌপ্য পদক', cls: 'silver' }
+    if (accuracy >= 60) return { icon: '🥉', label: 'ব্রোঞ্জ পদক', cls: 'bronze' }
+    return { icon: '📋', label: 'অংশগ্রহণ', cls: 'participation' }
+  }
+
+  const badge = getBadge()
+  const filteredQuestions = getFilteredQuestions()
+
   return (
     <div className="result-summary">
       <div className="result-card">
-        <div className="result-header">
-          <h1 className="bengali">পরীক্ষা সম্পন্ন</h1>
-          <p className="student-name bengali">{studentName}</p>
-          <p className="congratulations-message bengali">{getCongratulatoryMessage()}</p>
+
+        {/* ===== HEADER ===== */}
+        <div className="rs-header">
+          <div className={`rs-badge-chip ${badge.cls}`}>
+            <span className="rs-badge-icon">{badge.icon}</span>
+            <span className="bengali">{badge.label}</span>
+          </div>
+          <h1 className="rs-title bengali">পরীক্ষা সম্পন্ন</h1>
+          <p className="rs-student bengali">{studentName}</p>
+          <p className="rs-congrats bengali">{getCongratulatoryMessage()}</p>
         </div>
 
-        <AchievementBadge score={totalScore} accuracy={parseFloat(accuracy)} />
-
-        <div className="score-and-chart-container">
-          <div className={`score-display ${pass ? 'pass' : 'fail'}`}>
-            <div className="progress-ring">
-              <svg className="progress-svg" viewBox="0 0 200 200">
-                <circle
-                  className="progress-circle-bg"
-                  cx="100"
-                  cy="100"
-                  r="85"
-                />
-                <circle
-                  className="progress-circle"
-                  cx="100"
-                  cy="100"
-                  r="85"
-                  style={{
-                    strokeDasharray: `${(totalScore / total) * 534} 534`
-                  }}
-                />
-              </svg>
-              <div className="score-content">
-                <div className="score-value">{totalScore.toFixed(2)}</div>
-                <div className="score-label bengali">মোট: {total}</div>
-              </div>
-            </div>
-            <div className={`status-badge ${pass ? 'pass' : 'fail'}`}>
-              {pass ? 'পাস' : 'ফেল'}
+        {/* ===== SCORE HERO ===== */}
+        <div className="rs-score-hero">
+          <div className={`rs-score-ring ${pass ? 'pass' : 'fail'}`}>
+            <svg viewBox="0 0 120 120">
+              <circle className="rs-ring-bg" cx="60" cy="60" r="52" />
+              <circle
+                className="rs-ring-fill"
+                cx="60" cy="60" r="52"
+                style={{
+                  strokeDasharray: `${(totalScore / total) * 327} 327`
+                }}
+              />
+            </svg>
+            <div className="rs-ring-text">
+              <span className="rs-score-num">{totalScore.toFixed(1)}</span>
+              <span className="rs-score-total bengali">/ {total}</span>
             </div>
           </div>
-
-          <PerformanceChart
-            correct={correct}
-            wrong={wrong}
-            unanswered={unanswered}
-          />
+          <div className={`rs-pass-chip ${pass ? 'pass' : 'fail'}`}>
+            {pass ? '✅ পাস' : '❌ ফেল'}
+          </div>
         </div>
 
-        {/* Subject-wise Analysis Section */}
+        {/* ===== QUICK STATS ===== */}
+        <div className="rs-stats-row">
+          <div className="rs-stat correct">
+            <div className="rs-stat-num">{correct}</div>
+            <div className="rs-stat-label bengali">সঠিক</div>
+          </div>
+          <div className="rs-stat wrong">
+            <div className="rs-stat-num">{wrong}</div>
+            <div className="rs-stat-label bengali">ভুল</div>
+          </div>
+          <div className="rs-stat skipped">
+            <div className="rs-stat-num">{unanswered}</div>
+            <div className="rs-stat-label bengali">বাদ</div>
+          </div>
+          <div className="rs-stat accuracy">
+            <div className="rs-stat-num">{accuracy}%</div>
+            <div className="rs-stat-label bengali">সঠিকতা</div>
+          </div>
+        </div>
+
+        {/* ===== SUBJECT ANALYSIS ===== */}
         {Object.keys(subjectStats).length > 0 && (
-          <div className="subject-analysis">
-            <h2 className="subject-analysis-title bengali">
-              <span className="analysis-icon">📊</span>
-              বিষয়ভিত্তিক পারদর্শিতা বিশ্লেষণ
-            </h2>
-            <div className="subject-grid">
+          <div className="rs-subjects">
+            <h2 className="rs-section-title bengali">📊 বিষয়ভিত্তিক বিশ্লেষণ</h2>
+            <div className="rs-subject-grid">
               {Object.entries(subjectStats).map(([subject, stats]) => (
-                <div key={subject} className="subject-card">
-                  <div className="subject-card-header">
-                    <span className="subject-name bengali">{subjectNames[subject] || subject}</span>
-                    <span className={`subject-percent ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}>
+                <div key={subject} className="rs-subject-card">
+                  <div className="rs-subject-header">
+                    <span className="rs-subject-name bengali">{subjectNames[subject] || subject}</span>
+                    <span className={`rs-subject-pct ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}>
                       {stats.percentage}%
                     </span>
                   </div>
-                  <div className="subject-progress-container">
+                  <div className="rs-subject-bar-track">
                     <div
-                      className={`subject-progress-bar ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}
+                      className={`rs-subject-bar-fill ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}
                       style={{ width: `${stats.percentage}%` }}
-                    ></div>
+                    />
                   </div>
-                  <div className="subject-metrics">
-                    <div className="metric-box correct">
-                      <span className="metric-icon">✓</span>
-                      <span className="metric-value">{stats.correct}</span>
-                    </div>
-                    <div className="metric-box wrong">
-                      <span className="metric-icon">X</span>
-                      <span className="metric-value">{stats.wrong}</span>
-                    </div>
-                    <div className="metric-box skipped">
-                      <span className="metric-icon">📝</span>
-                      <span className="metric-value">{stats.total - stats.attempted}</span>
-                    </div>
+                  <div className="rs-subject-nums">
+                    <span className="correct-text">✓ {stats.correct}</span>
+                    <span className="wrong-text">✗ {stats.wrong}</span>
+                    <span className="skip-text">— {stats.total - stats.attempted}</span>
                   </div>
                 </div>
               ))}
@@ -195,109 +158,127 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
           </div>
         )}
 
-        <div className="stats-grid">
-          <div className="stat-item correct-stat">
-            <div className="stat-value correct">{animatedCorrect}</div>
-            <div className="stat-label bengali">সঠিক</div>
-          </div>
-          <div className="stat-item wrong-stat">
-            <div className="stat-value wrong">{animatedWrong}</div>
-            <div className="stat-label bengali">ভুল</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-value">{attempted}</div>
-            <div className="stat-label bengali">চেষ্টা</div>
-          </div>
-          <div className="stat-item">
-            <div className="stat-value">{accuracy}%</div>
-            <div className="stat-label bengali">সঠিকতা</div>
-          </div>
-        </div>
-
-        <div className="answers-review">
-          <h2 className="bengali">উত্তর পর্যালোচনা</h2>
-
-          <div className="filter-buttons">
-            <button
-              className={`filter-btn ${filter === 'all' ? 'active' : ''}`}
-              onClick={() => setFilter('all')}
-            >
-              <span className="bengali">সব ({questions.length})</span>
-            </button>
-            <button
-              className={`filter-btn ${filter === 'correct' ? 'active' : ''}`}
-              onClick={() => setFilter('correct')}
-            >
-              <span className="bengali">সঠিক ({correct})</span>
-            </button>
-            <button
-              className={`filter-btn ${filter === 'wrong' ? 'active' : ''}`}
-              onClick={() => setFilter('wrong')}
-            >
-              <span className="bengali">ভুল ({wrong})</span>
-            </button>
-            <button
-              className={`filter-btn ${filter === 'unanswered' ? 'active' : ''}`}
-              onClick={() => setFilter('unanswered')}
-            >
-              <span className="bengali">উত্তরহীন ({unanswered})</span>
-            </button>
-          </div>
-
-          <div className="answers-list">
-            {getFilteredQuestions().map((q, idx) => {
-              const selected = answers[q.id]
-              const isCorrect = selected === q.correctOptionId
-              const hasAnswer = selected !== undefined
-
+        {/* ===== COMPACT ANSWER GRID ===== */}
+        <div className="rs-answer-grid-section">
+          <h2 className="rs-section-title bengali">�️ উত্তর সারসংক্ষেপ</h2>
+          <div className="rs-answer-grid">
+            {questions.map((q) => {
+              const { hasAnswer, isCorrect } = getQuestionStatus(q)
+              const cls = isCorrect ? 'correct' : hasAnswer ? 'wrong' : 'skipped'
               return (
-                <div key={q.id} className={`answer-item ${isCorrect ? 'correct' : hasAnswer ? 'wrong' : 'unanswered'}`}>
-                  <div className="answer-header">
-                    <span className="question-num bengali">প্রশ্ন {idx + 1}</span>
-                    {isCorrect && <span className="icon-check"></span>}
-                    {hasAnswer && !isCorrect && <span className="icon-cross"></span>}
-                    {!hasAnswer && <span className="icon-dash"></span>}
-                  </div>
-                  <div className="answer-details">
-                    {hasAnswer ? (
-                      <>
-                        <span className="bengali">আপনার উত্তর: {selected}</span>
-                        <span className="bengali">সঠিক উত্তর: {q.correctOptionId}</span>
-                      </>
-                    ) : (
-                      <span className="bengali">উত্তর দেওয়া হয়নি</span>
-                    )}
-                  </div>
-
-                  {/* Solution toggle */}
-                  {getSolution(q.id) && (
-                    <div className="solution-toggle-section">
-                      <button
-                        className="solution-toggle-btn bengali"
-                        onClick={() => toggleExpand(q.id)}
-                      >
-                        {expandedQuestions.has(q.id) ? '▼ সমাধান লুকান' : '▶ সমাধান দেখুন'}
-                      </button>
-                      {expandedQuestions.has(q.id) && (
-                        <div className="solution-box">
-                          <div className="solution-header bengali">
-                            <span className="solution-icon">💡</span>
-                            <strong>সমাধান/ব্যাখ্যা:</strong>
-                          </div>
-                          <div className="solution-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(getSolution(q.id)) }} />
-                        </div>
-                      )}
-                    </div>
-                  )}
-                </div>
+                <button
+                  key={q.id}
+                  className={`rs-grid-tile ${cls} ${activeQuestion === q.id ? 'active' : ''}`}
+                  onClick={() => scrollToQuestion(q.id)}
+                  title={`প্রশ্ন ${q.id}`}
+                >
+                  {q.id}
+                </button>
               )
             })}
           </div>
+          <div className="rs-grid-legend">
+            <span><span className="rs-legend-dot correct" /> সঠিক</span>
+            <span><span className="rs-legend-dot wrong" /> ভুল</span>
+            <span><span className="rs-legend-dot skipped" /> বাদ</span>
+          </div>
         </div>
 
-        <button className="restart-btn bengali" onClick={onRestart}>
-          নতুন পরীক্ষা শুরু করুন
-        </button>
+        {/* ===== PDF & FILTER BAR ===== */}
+        <div className="rs-toolbar">
+          <div className="rs-filters">
+            {[
+              { key: 'all', label: `সব (${questions.length})` },
+              { key: 'wrong', label: `ভুল (${wrong})` },
+              { key: 'correct', label: `সঠিক (${correct})` },
+              { key: 'unanswered', label: `বাদ (${unanswered})` },
+            ].map(f => (
+              <button
+                key={f.key}
+                className={`rs-filter-btn bengali ${filter === f.key ? 'active' : ''}`}
+                onClick={() => setFilter(f.key)}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
+          <button className="rs-pdf-btn no-print bengali" onClick={handlePrint}>
+            📄 PDF ডাউনলোড
+          </button>
+        </div>
+
+        {/* ===== FULL QUESTION REVIEW ===== */}
+        <div className="rs-questions-list">
+          {filteredQuestions.map((q) => {
+            const { selected, hasAnswer, isCorrect } = getQuestionStatus(q)
+            const statusCls = isCorrect ? 'correct' : hasAnswer ? 'wrong' : 'unanswered'
+            const options = [
+              { key: 'a', text: q.options.a },
+              { key: 'b', text: q.options.b },
+              { key: 'c', text: q.options.c },
+              { key: 'd', text: q.options.d },
+            ]
+
+            return (
+              <div
+                key={q.id}
+                className={`rs-question-card ${statusCls}`}
+                ref={el => questionRefs.current[q.id] = el}
+              >
+                {/* Question header */}
+                <div className="rs-q-header">
+                  <span className="rs-q-num bengali">প্রশ্ন {q.id}</span>
+                  <span className={`rs-q-badge ${statusCls}`}>
+                    {isCorrect ? '✓ সঠিক' : hasAnswer ? '✗ ভুল' : '— বাদ'}
+                  </span>
+                </div>
+
+                {/* Question text */}
+                <div
+                  className="rs-q-text bengali"
+                  dangerouslySetInnerHTML={{ __html: renderLatex(q.question) }}
+                />
+
+                {/* Options */}
+                <div className="rs-options">
+                  {options.map(opt => {
+                    let optCls = ''
+                    if (opt.key === q.correctOptionId) optCls = 'correct-option'
+                    if (hasAnswer && opt.key === selected && !isCorrect) optCls += ' wrong-option'
+                    if (hasAnswer && opt.key === selected && isCorrect) optCls = 'correct-option selected'
+
+                    return (
+                      <div key={opt.key} className={`rs-option ${optCls}`}>
+                        <span className="rs-opt-letter">{opt.key.toUpperCase()}</span>
+                        <span className="rs-opt-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(opt.text) }} />
+                        {opt.key === q.correctOptionId && <span className="rs-opt-check">✓</span>}
+                        {hasAnswer && opt.key === selected && !isCorrect && <span className="rs-opt-cross">✗</span>}
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {/* Solution / Explanation */}
+                {q.explanation && (
+                  <div className="rs-explanation">
+                    <div className="rs-explanation-header bengali">💡 ব্যাখ্যা</div>
+                    <div
+                      className="rs-explanation-text bengali"
+                      dangerouslySetInnerHTML={{ __html: renderLatex(q.explanation) }}
+                    />
+                  </div>
+                )}
+              </div>
+            )
+          })}
+        </div>
+
+        {/* ===== ACTIONS ===== */}
+        <div className="rs-actions no-print">
+          <button className="rs-restart-btn bengali" onClick={onRestart}>
+            🔄 নতুন পরীক্ষা শুরু করুন
+          </button>
+        </div>
       </div>
 
       <SubmissionStatus {...submissionStatus} />
@@ -306,5 +287,3 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
 }
 
 export default ResultSummary
-
-

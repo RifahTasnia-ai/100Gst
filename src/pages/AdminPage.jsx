@@ -87,7 +87,6 @@ function AdminPage() {
   const submissionsByStudent = useMemo(() => {
     // --- FILTER OLD DATA FROM DISPLAY ---
     const TEN_MINUTES_MS = 10 * 60 * 1000;
-    const EIGHTY_MINUTES_MS = 80 * 60 * 1000;
     const now = Date.now();
     const groups = {}
 
@@ -110,11 +109,12 @@ function AdminPage() {
         const start = new Date(pending.timestamp).getTime()
         const elapsed = now - start
 
-        // Filter out pending students older than 80 minutes
-        if (elapsed > EIGHTY_MINUTES_MS) return;
+        // Filter out pending students older than 61 minutes (exam timeout)
+        const SIXTY_ONE_MINUTES_MS = 61 * 60 * 1000;
+        if (elapsed > SIXTY_ONE_MINUTES_MS) return;
 
         const minutes = Math.floor(elapsed / (1000 * 60))
-        const TIMEOUT_THRESHOLD = 70
+        const TIMEOUT_THRESHOLD = 60
 
         // This student is pending and hasn't submitted
         groups[studentKey] = {

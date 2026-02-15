@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import html2canvas from 'html2canvas'
 import { renderLatex } from '../../utils/latex'
 import './SubmissionsTable.css'
@@ -15,13 +15,16 @@ function SubmissionsTable({
   onPageChange
 }) {
   const [selectedSubmission, setSelectedSubmission] = useState(null)
-  const [selectedQuestion, setSelectedQuestion] = useState(null)
   const [questions, setQuestions] = useState([])
-
+  const [modalFilter, setModalFilter] = useState('all')
+  const [activeQuestionId, setActiveQuestionId] = useState(null)
+  const questionRefs = useRef({})
 
   useEffect(() => {
     if (selectedSubmission) {
       loadQuestions()
+      setModalFilter('all')
+      setActiveQuestionId(null)
     }
   }, [selectedSubmission])
 
@@ -29,9 +32,7 @@ function SubmissionsTable({
     try {
       const questionFile = selectedSubmission?.questionFile || 'questions.json'
       const res = await fetch(`/${questionFile}`, { cache: 'no-store' })
-      if (!res.ok) {
-        throw new Error('Failed to load questions')
-      }
+      if (!res.ok) throw new Error('Failed to load questions')
       const data = await res.json()
       setQuestions(data)
     } catch (err) {
@@ -39,65 +40,80 @@ function SubmissionsTable({
     }
   }
 
-  // Solutions are now embedded in the question object
-
-
-  function isAnswerCorrect(questionId, studentAnswer) {
+  function getQuestionStatus(questionId, studentAnswer) {
     const qid = typeof questionId === 'string' ? parseInt(questionId) : questionId
     const question = questions.find(q => q.id === qid || q.id.toString() === questionId.toString())
-    if (!question) return null
-    return question.correctAnswer === studentAnswer
+    if (!question) return { isCorrect: null, correctAnswer: null, question: null }
+    const isAnswered = studentAnswer !== undefined && studentAnswer !== null
+    return {
+      isCorrect: isAnswered ? question.correctAnswer === studentAnswer : null,
+      isAnswered,
+      correctAnswer: question.correctAnswer,
+      question
+    }
   }
 
-  function handleQuestionClick(questionId, studentAnswer) {
-    const qid = typeof questionId === 'string' ? parseInt(questionId) : questionId
-    const question = questions.find(q => q.id === qid || q.id.toString() === questionId.toString())
+  function getFilteredQuestions() {
+    const answers = selectedSubmission?.answers || {}
+    return questions.filter(q => {
+      const qid = q.id.toString()
+      const ans = answers[qid]
+      const isAnswered = ans !== undefined && ans !== null
+      const isCorrect = isAnswered && q.correctAnswer === ans
 
-    if (question) {
-      setSelectedQuestion({
-        ...question,
-        studentAnswer,
-        isCorrect: question.correctAnswer === studentAnswer,
-        isAnswered: studentAnswer !== undefined && studentAnswer !== null,
-        solution: question.explanation || null
-      })
+      if (modalFilter === 'correct') return isCorrect
+      if (modalFilter === 'wrong') return isAnswered && !isCorrect
+      if (modalFilter === 'unanswered') return !isAnswered
+      return true
+    })
+  }
+
+  function scrollToQuestion(qId) {
+    setActiveQuestionId(qId)
+    const el = questionRefs.current[qId]
+    if (el) {
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
+  }
+
+  function getStats() {
+    if (!selectedSubmission || questions.length === 0) return { correct: 0, wrong: 0, unanswered: 0 }
+    const answers = selectedSubmission.answers || {}
+    let correct = 0, wrong = 0, unanswered = 0
+    questions.forEach(q => {
+      const ans = answers[q.id.toString()]
+      if (ans === undefined || ans === null) {
+        unanswered++
+      } else if (q.correctAnswer === ans) {
+        correct++
+      } else {
+        wrong++
+      }
+    })
+    return { correct, wrong, unanswered }
   }
 
   function formatDate(timestamp) {
     const date = new Date(timestamp)
-    return date.toLocaleDateString('en-GB', {
-      day: 'numeric',
-      month: 'short'
-    })
+    return date.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' })
   }
 
   function formatFullDate(timestamp) {
     const date = new Date(timestamp)
     return date.toLocaleString('en-GB', {
-      day: 'numeric',
-      month: 'long',
-      year: 'numeric',
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
+      day: 'numeric', month: 'long', year: 'numeric',
+      hour: 'numeric', minute: '2-digit', hour12: true
     })
   }
 
   function getElapsedTime(timestamp) {
     const now = Date.now()
     const start = new Date(timestamp).getTime()
-    const elapsed = now - start
-    const minutes = Math.floor(elapsed / (1000 * 60))
-
-    // Exam is 60 minutes, add 10 minute grace period = 70 minutes total
-    const TIMEOUT_THRESHOLD = 70
-    const WARNING_THRESHOLD = 50 // Show warning when approaching timeout
-
+    const minutes = Math.floor((now - start) / (1000 * 60))
     return {
       minutes,
-      isExpired: minutes > TIMEOUT_THRESHOLD,
-      isWarning: minutes > WARNING_THRESHOLD && minutes <= TIMEOUT_THRESHOLD
+      isExpired: minutes > 60,
+      isWarning: minutes > 50 && minutes <= 60
     }
   }
 
@@ -105,53 +121,27 @@ function SubmissionsTable({
     try {
       const modalElement = document.querySelector('.modal-content')
       if (!modalElement) return
-
-      // Store the original max-height and overflow styles
-      const originalMaxHeight = modalElement.style.maxHeight
-      const originalOverflow = modalElement.style.overflow
-      const originalOverflowY = modalElement.style.overflowY
-
-      // Temporarily remove height restrictions to capture full content
+      const ogMax = modalElement.style.maxHeight
+      const ogOv = modalElement.style.overflow
+      const ogOvY = modalElement.style.overflowY
       modalElement.style.maxHeight = 'none'
       modalElement.style.overflow = 'visible'
       modalElement.style.overflowY = 'visible'
-
-      // Wait a bit for the DOM to stabilize
-      await new Promise(resolve => setTimeout(resolve, 100))
-
-      // Create canvas from the full modal content
+      await new Promise(r => setTimeout(r, 100))
       const canvas = await html2canvas(modalElement, {
-        backgroundColor: '#ffffff',
-        scale: 2, // Higher quality
-        logging: false,
-        useCORS: true,
-        allowTaint: true,
-        windowHeight: modalElement.scrollHeight,
-        height: modalElement.scrollHeight
+        backgroundColor: '#ffffff', scale: 2, logging: false,
+        useCORS: true, allowTaint: true,
+        windowHeight: modalElement.scrollHeight, height: modalElement.scrollHeight
       })
-
-      // Restore original styles
-      modalElement.style.maxHeight = originalMaxHeight
-      modalElement.style.overflow = originalOverflow
-      modalElement.style.overflowY = originalOverflowY
-
-      // Convert canvas to blob
+      modalElement.style.maxHeight = ogMax
+      modalElement.style.overflow = ogOv
+      modalElement.style.overflowY = ogOvY
       canvas.toBlob((blob) => {
         if (!blob) return
-
-        // Create download link
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
-        const timestamp = new Date().toLocaleString('bn-BD', {
-          year: 'numeric',
-          month: '2-digit',
-          day: '2-digit',
-          hour: '2-digit',
-          minute: '2-digit'
-        }).replace(/[/:,\s]/g, '-')
-
         link.href = url
-        link.download = `উত্তর-বিস্তারিত-${selectedSubmission?.studentName || 'student'}-${timestamp}.jpg`
+        link.download = `উত্তর-${selectedSubmission?.studentName || 'student'}.jpg`
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -159,17 +149,14 @@ function SubmissionsTable({
       }, 'image/jpeg', 0.95)
     } catch (error) {
       console.error('Screenshot failed:', error)
-      alert('স্ক্রিনশট নিতে সমস্যা হয়েছে। আবার চেষ্টা করুন।')
+      alert('স্ক্রিনশট নিতে সমস্যা হয়েছে।')
     }
   }
 
   function handleExportJSON() {
     try {
-      // Calculate unanswered questions
       const answeredCount = Object.keys(selectedSubmission.answers || {}).length
       const unansweredCount = questions.length - answeredCount
-
-      // Build comprehensive JSON structure
       const exportData = {
         subjectName: selectedSubmission.studentName || 'Unknown',
         studentId: selectedSubmission.studentId || 'N/A',
@@ -193,43 +180,20 @@ function SubmissionsTable({
           const qid = question.id.toString()
           const studentAnswer = (selectedSubmission.answers || {})[qid]
           const isAnswered = studentAnswer !== undefined && studentAnswer !== null
-          const isCorrect = isAnswered ? isAnswerCorrect(qid, studentAnswer) : null
-
-
+          const { isCorrect } = getQuestionStatus(qid, studentAnswer)
           return {
-            questionId: question.id,
-            question: question.question,
-            options: {
-              a: question.options.a,
-              b: question.options.b,
-              c: question.options.c,
-              d: question.options.d
-            },
+            questionId: question.id, question: question.question,
+            options: question.options,
             studentAnswer: isAnswered ? studentAnswer : null,
             correctAnswer: question.correctAnswer,
-            isCorrect: isCorrect,
-            isAnswered: isAnswered,
+            isCorrect, isAnswered,
             solution: question.explanation || null
           }
         })
       }
-
-      // Convert to JSON string with formatting
-      const jsonString = JSON.stringify(exportData, null, 2)
-
-      // Create blob and download
-      const blob = new Blob([jsonString], { type: 'application/json' })
+      const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
       const url = URL.createObjectURL(blob)
       const link = document.createElement('a')
-      const timestamp = new Date().toLocaleString('en-GB', {
-        day: 'numeric',
-        month: 'long',
-        year: 'numeric',
-        hour: 'numeric',
-        minute: '2-digit',
-        hour12: true
-      })
-
       link.href = url
       link.download = `${selectedSubmission?.studentName || 'student'}.json`
       document.body.appendChild(link)
@@ -238,7 +202,7 @@ function SubmissionsTable({
       URL.revokeObjectURL(url)
     } catch (error) {
       console.error('JSON export failed:', error)
-      alert('JSON এক্সপোর্ট করতে সমস্যা হয়েছে। আবার চেষ্টা করুন।')
+      alert('JSON এক্সপোর্ট করতে সমস্যা হয়েছে।')
     }
   }
 
@@ -265,8 +229,12 @@ function SubmissionsTable({
     )
   }
 
+  const stats = getStats()
+  const filteredModalQuestions = getFilteredQuestions()
+
   return (
     <>
+      {/* ===== TABLE ===== */}
       <div className="data-table-container">
         <table className="data-table">
           <thead>
@@ -323,12 +291,7 @@ function SubmissionsTable({
                 <td data-label="অ্যাকশন">
                   <div style={{ display: 'flex', gap: '8px' }}>
                     {!sub.isPending && (
-                      <button
-                        className="action-button bengali"
-                        onClick={() => setSelectedSubmission(sub)}
-                      >
-                        দেখুন
-                      </button>
+                      <button className="action-button bengali" onClick={() => setSelectedSubmission(sub)}>দেখুন</button>
                     )}
                     {sub.isPending && (
                       <span className="bengali" style={{ color: '#999', fontSize: '12px' }}>পরীক্ষা চলছে...</span>
@@ -337,9 +300,7 @@ function SubmissionsTable({
                       className="action-button danger bengali"
                       onClick={() => onDeleteStudent(sub.studentName)}
                       title="ছাত্র মুছুন"
-                    >
-                      ✗
-                    </button>
+                    >✗</button>
                   </div>
                 </td>
               </tr>
@@ -353,318 +314,220 @@ function SubmissionsTable({
             দেখানো হচ্ছে {((currentPage - 1) * itemsPerPage) + 1} থেকে {Math.min(currentPage * itemsPerPage, totalItems)} টি, মোট {totalItems} টি
           </div>
           <div className="pagination-buttons">
-            <button
-              className="pagination-button"
-              onClick={() => onPageChange(currentPage - 1)}
-              disabled={currentPage === 1}
-            >
-              ←
-            </button>
-
-            <button className="pagination-button active">
-              {currentPage}
-            </button>
-
-            <button
-              className="pagination-button"
-              onClick={() => onPageChange(currentPage + 1)}
-              disabled={currentPage === totalPages}
-            >
-              →
-            </button>
+            <button className="pagination-button" onClick={() => onPageChange(currentPage - 1)} disabled={currentPage === 1}>←</button>
+            <button className="pagination-button active">{currentPage}</button>
+            <button className="pagination-button" onClick={() => onPageChange(currentPage + 1)} disabled={currentPage === totalPages}>→</button>
           </div>
         </div>
       </div>
 
-      {/* Detail Modal */}
+      {/* ===== REDESIGNED DETAIL MODAL ===== */}
       {selectedSubmission && (
         <div className="detail-modal" onClick={() => setSelectedSubmission(null)}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+
+            {/* Modal Header */}
             <div className="modal-header">
-              <h2 className="bengali">
-                {selectedSubmission.studentName}
-              </h2>
+              <h2 className="bengali">{selectedSubmission.studentName}</h2>
               <div className="modal-header-actions">
-                <button
-                  className="export-json-btn"
-                  onClick={handleExportJSON}
-                  title="AI-Future Research Export"
-                >
+                <button className="export-json-btn" onClick={handleExportJSON} title="AI-Future Research Export">
                   <img src="/ai-icon.png" alt="AI" className="export-icon" />
                   <span>AI-Future</span>
                 </button>
-                <button
-                  className="screenshot-btn bengali"
-                  onClick={handleScreenshot}
-                  title="স্ক্রিনশট নিন"
-                >
-                  📸 স্ক্রিনশট
+                <button className="screenshot-btn bengali" onClick={handleScreenshot} title="স্ক্রিনশট">
+                  📸
                 </button>
-                <button
-                  className="close-btn"
-                  onClick={() => setSelectedSubmission(null)}
-                >
-                  ✕
-                </button>
+                <button className="close-btn" onClick={() => setSelectedSubmission(null)}>✕</button>
               </div>
             </div>
+
             <div className="modal-body">
-              <div className="detail-info">
-                <div className="info-item main-score">
-                  <span className="info-label bengali">স্কোর:</span>
-                  <span className="info-value score-large">{Number(selectedSubmission.score || 0).toFixed(2)}</span>
-                  <span className="info-suffix">/ {selectedSubmission.totalMarks || 100}</span>
+              {/* Score Summary */}
+              <div className="adm-score-row">
+                <div className="adm-score-main">
+                  <span className="adm-score-val">{Number(selectedSubmission.score || 0).toFixed(2)}</span>
+                  <span className="adm-score-total">/ {selectedSubmission.totalMarks || 100}</span>
                 </div>
+                <span className={`adm-pass-chip ${selectedSubmission.pass ? 'pass' : 'fail'}`}>
+                  {selectedSubmission.pass ? '✓ পাস' : '✗ ফেল'}
+                </span>
+              </div>
 
-                {/* Statistics Box - Green Border */}
-                <div className={`stats-summary-box ${selectedSubmission.pass ? 'pass' : 'fail'}`}>
-                  <div className="info-item">
-                    <span className="info-label bengali">সঠিক:</span>
-                    <span className="info-value correct">{selectedSubmission.correct || 0}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label bengali">ভুল:</span>
-                    <span className="info-value wrong">{selectedSubmission.wrong || 0}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label bengali">চেষ্টা:</span>
-                    <span className="info-value">{selectedSubmission.attempted || 0}</span>
-                  </div>
-                  <div className="info-item">
-                    <span className="info-label bengali">সময়:</span>
-                    <span className="info-value">{formatDate(selectedSubmission.timestamp)}</span>
-                  </div>
+              {/* Quick Stats */}
+              <div className="adm-stats-row">
+                <div className="adm-stat correct">
+                  <span className="adm-stat-num">{selectedSubmission.correct || stats.correct}</span>
+                  <span className="adm-stat-label bengali">সঠিক</span>
                 </div>
-
-                {/* Subject-wise Analysis Section */}
-                {(() => {
-                  const subjectStats = (() => {
-                    // Use existing stats if available
-                    if (selectedSubmission.subjectStats) return selectedSubmission.subjectStats;
-
-                    // Calculate on the fly for old submissions
-                    const stats = {};
-                    const answers = selectedSubmission.answers || {};
-
-                    questions.forEach(q => {
-                      const subject = q.subject || 'General';
-                      if (!stats[subject]) {
-                        stats[subject] = { correct: 0, wrong: 0, attempted: 0, total: 0 };
-                      }
-                      stats[subject].total++;
-
-                      const selected = answers[q.id.toString()];
-                      if (selected !== undefined && selected !== null) {
-                        stats[subject].attempted++;
-                        if (selected === q.correctAnswer) {
-                          stats[subject].correct++;
-                        } else {
-                          stats[subject].wrong++;
-                        }
-                      }
-                    });
-
-                    // Calculate percentages
-                    Object.values(stats).forEach(stat => {
-                      stat.percentage = stat.total > 0 ? Math.round((stat.correct / stat.total) * 100) : 0;
-                    });
-
-                    return stats;
-                  })();
-
-                  const subjectNames = {
-                    'Biology': 'Biology',
-                    'Chemistry': 'রসায়ন',
-                    'ICT': 'আইসিটি',
-                    'Physics': 'পদার্থবিজ্ঞান',
-                    'General': 'সাধারণ'
-                  };
-
-                  if (Object.keys(subjectStats).length === 0) return null;
-
-                  return (
-                    <div className="subject-analysis">
-                      <h2 className="subject-analysis-title bengali">
-                        <span className="analysis-icon">📊</span>
-                        বিষয়ভিত্তিক পারদর্শিতা বিশ্লেষণ
-                      </h2>
-                      <div className="subject-grid">
-                        {Object.entries(subjectStats).map(([subject, stats]) => (
-                          <div key={subject} className="subject-card">
-                            <div className="subject-card-header">
-                              <span className="subject-name bengali">{subjectNames[subject] || subject}</span>
-                              <span className={`subject-percent ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}>
-                                {stats.percentage}%
-                              </span>
-                            </div>
-                            <div className="subject-progress-container">
-                              <div
-                                className={`subject-progress-bar ${stats.percentage >= 80 ? 'high' : stats.percentage >= 50 ? 'mid' : 'low'}`}
-                                style={{ width: `${stats.percentage}%` }}
-                              ></div>
-                            </div>
-                            <div className="subject-metrics">
-                              <div className="metric-box correct">
-                                <span className="metric-icon">✓</span>
-                                <span className="metric-value">{stats.correct}</span>
-                              </div>
-                              <div className="metric-box wrong">
-                                <span className="metric-icon">X</span>
-                                <span className="metric-value">{stats.wrong}</span>
-                              </div>
-                              <div className="metric-box skipped">
-                                <span className="metric-icon">📝</span>
-                                <span className="metric-value">{stats.total - stats.attempted}</span>
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  );
-                })()}
-
-                <div className="info-item">
-                  <span className="info-label bengali">স্ট্যাটাস:</span>
-                  <span className={`info-value ${selectedSubmission.pass ? 'pass-status' : 'fail-status'}`}>
-                    {selectedSubmission.pass ? '✓ পাস' : '✗ ফেল'}
-                  </span>
+                <div className="adm-stat wrong">
+                  <span className="adm-stat-num">{selectedSubmission.wrong || stats.wrong}</span>
+                  <span className="adm-stat-label bengali">ভুল</span>
+                </div>
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{selectedSubmission.attempted || Object.keys(selectedSubmission.answers || {}).length}</span>
+                  <span className="adm-stat-label bengali">চেষ্টা</span>
+                </div>
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{formatDate(selectedSubmission.timestamp)}</span>
+                  <span className="adm-stat-label bengali">তারিখ</span>
                 </div>
               </div>
 
-              <div className="answers-detail">
-                <h3 className="bengali">উত্তরসমূহ ({Object.keys(selectedSubmission.answers || {}).length} / {questions.length} টি):</h3>
-                <div className="answers-grid">
-                  {questions.map((question) => {
-                    const qid = question.id.toString()
+              {/* Subject Analysis */}
+              {(() => {
+                const subjectStats = (() => {
+                  if (selectedSubmission.subjectStats) return selectedSubmission.subjectStats
+                  const s = {}
+                  const answers = selectedSubmission.answers || {}
+                  questions.forEach(q => {
+                    const subject = q.subject || 'General'
+                    if (!s[subject]) s[subject] = { correct: 0, wrong: 0, attempted: 0, total: 0 }
+                    s[subject].total++
+                    const sel = answers[q.id.toString()]
+                    if (sel !== undefined && sel !== null) {
+                      s[subject].attempted++
+                      if (sel === q.correctAnswer) s[subject].correct++
+                      else s[subject].wrong++
+                    }
+                  })
+                  Object.values(s).forEach(st => {
+                    st.percentage = st.total > 0 ? Math.round((st.correct / st.total) * 100) : 0
+                  })
+                  return s
+                })()
+                const subjectNames = {
+                  'Biology': 'জীববিজ্ঞান', 'Chemistry': 'রসায়ন', 'ICT': 'আইসিটি',
+                  'Physics': 'পদার্থবিজ্ঞান', 'Mathematics': 'গণিত', 'General': 'সাধারণ'
+                }
+                if (Object.keys(subjectStats).length === 0) return null
+                return (
+                  <div className="adm-subjects">
+                    <h3 className="adm-section-title bengali">📊 বিষয়ভিত্তিক বিশ্লেষণ</h3>
+                    <div className="adm-subject-grid">
+                      {Object.entries(subjectStats).map(([subject, s]) => (
+                        <div key={subject} className="adm-subject-card">
+                          <div className="adm-subject-header">
+                            <span className="bengali">{subjectNames[subject] || subject}</span>
+                            <span className={`adm-subject-pct ${s.percentage >= 80 ? 'high' : s.percentage >= 50 ? 'mid' : 'low'}`}>
+                              {s.percentage}%
+                            </span>
+                          </div>
+                          <div className="adm-subject-bar-track">
+                            <div className={`adm-subject-bar-fill ${s.percentage >= 80 ? 'high' : s.percentage >= 50 ? 'mid' : 'low'}`}
+                              style={{ width: `${s.percentage}%` }} />
+                          </div>
+                          <div className="adm-subject-nums">
+                            <span className="c">✓{s.correct}</span>
+                            <span className="w">✗{s.wrong}</span>
+                            <span className="s">—{s.total - s.attempted}</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              })()}
+
+              {/* ===== COMPACT ANSWER GRID ===== */}
+              <div className="adm-answer-grid-section">
+                <h3 className="adm-section-title bengali">🗂️ উত্তর ম্যাপ <span className="adm-hint">(ক্লিক করে দেখুন)</span></h3>
+                <div className="adm-answer-grid">
+                  {questions.map(q => {
+                    const qid = q.id.toString()
                     const ans = (selectedSubmission.answers || {})[qid]
                     const isAnswered = ans !== undefined && ans !== null
-                    const correct = isAnswered ? isAnswerCorrect(qid, ans) : null
-
+                    const isCorrect = isAnswered && q.correctAnswer === ans
+                    const cls = isCorrect ? 'correct' : isAnswered ? 'wrong' : 'skipped'
                     return (
-                      <div
-                        key={qid}
-                        className={`answer-item ${!isAnswered ? 'unanswered' :
-                          correct === true ? 'correct-answer' :
-                            correct === false ? 'incorrect-answer' : ''
-                          }`}
-                        onClick={() => handleQuestionClick(qid, ans)}
-                        style={{ cursor: 'pointer' }}
-                        title="ক্লিক করে বিস্তারিত দেখুন"
+                      <button
+                        key={q.id}
+                        className={`adm-grid-tile ${cls} ${activeQuestionId === q.id ? 'active' : ''}`}
+                        onClick={() => scrollToQuestion(q.id)}
                       >
-                        <span className="question-id bengali">প্রশ্ন {qid}</span>
-                        <span className="answer-value">{isAnswered ? ans : '—'}</span>
-                      </div>
+                        {q.id}
+                      </button>
                     )
                   })}
                 </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Question Detail Modal */}
-      {selectedQuestion && (
-        <div className="question-detail-modal" onClick={() => setSelectedQuestion(null)}>
-          <div className="question-modal-content" onClick={(e) => e.stopPropagation()}>
-            <div className="question-modal-header">
-              <h2 className="bengali">প্রশ্ন নং {selectedQuestion.id}</h2>
-              <button
-                className="close-btn"
-                onClick={() => setSelectedQuestion(null)}
-              >
-                ✕
-              </button>
-            </div>
-            <div className="question-modal-body">
-              <div className="question-text bengali">
-                <strong>প্রশ্ন:</strong>
-                <p dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.question) }} />
-              </div>
-
-              {/* Solution Section - Show here (ABOVE) only if WRONG or UNANSWERED */}
-              {selectedQuestion.solution && (!selectedQuestion.isAnswered || !selectedQuestion.isCorrect) && (
-                <div className="solution-section" style={{ marginBottom: '24px' }}>
-                  <div className="solution-header bengali">
-                    <span className="solution-icon">💡</span>
-                    <strong>সমাধান/ব্যাখ্যা:</strong>
-                  </div>
-                  <div className="solution-content bengali" dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.solution) }} />
-                </div>
-              )}
-
-              <div className="options-list">
-                <div className="option-item bengali">
-                  <strong>A)</strong> <span dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.options.a) }} />
-                </div>
-                <div className="option-item bengali">
-                  <strong>B)</strong> <span dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.options.b) }} />
-                </div>
-                <div className="option-item bengali">
-                  <strong>C)</strong> <span dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.options.c) }} />
-                </div>
-                <div className="option-item bengali">
-                  <strong>D)</strong> <span dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.options.d) }} />
+                <div className="adm-grid-legend">
+                  <span><span className="adm-dot correct" />সঠিক</span>
+                  <span><span className="adm-dot wrong" />ভুল</span>
+                  <span><span className="adm-dot skipped" />বাদ</span>
                 </div>
               </div>
 
+              {/* ===== FILTER TABS ===== */}
+              <div className="adm-filter-bar">
+                {[
+                  { key: 'all', label: `সব (${questions.length})` },
+                  { key: 'wrong', label: `ভুল (${stats.wrong})` },
+                  { key: 'correct', label: `সঠিক (${stats.correct})` },
+                  { key: 'unanswered', label: `বাদ (${stats.unanswered})` },
+                ].map(f => (
+                  <button
+                    key={f.key}
+                    className={`adm-filter-btn bengali ${modalFilter === f.key ? 'active' : ''}`}
+                    onClick={() => setModalFilter(f.key)}
+                  >
+                    {f.label}
+                  </button>
+                ))}
+              </div>
 
-              <div className="answer-details-minimal">
-                {selectedQuestion.isAnswered ? (
-                  <>
-                    {selectedQuestion.isCorrect ? (
-                      <div className="answer-card success-card">
-                        <div className="card-header">
-                          <span className="status-icon-large">✓</span>
-                          <span className="status-label bengali">শিক্ষার্থীর উত্তর সঠিক</span>
-                        </div>
-                        <div className="answer-display-single">
-                          <div className="pill-badge success">{selectedQuestion.studentAnswer}</div>
-                        </div>
+              {/* ===== QUESTION DETAILS LIST ===== */}
+              <div className="adm-questions-list">
+                {filteredModalQuestions.map(q => {
+                  const qid = q.id.toString()
+                  const ans = (selectedSubmission.answers || {})[qid]
+                  const isAnswered = ans !== undefined && ans !== null
+                  const isCorrect = isAnswered && q.correctAnswer === ans
+                  const statusCls = isCorrect ? 'correct' : isAnswered ? 'wrong' : 'unanswered'
+                  const options = [
+                    { key: 'a', text: q.options?.a },
+                    { key: 'b', text: q.options?.b },
+                    { key: 'c', text: q.options?.c },
+                    { key: 'd', text: q.options?.d },
+                  ]
+
+                  return (
+                    <div
+                      key={q.id}
+                      className={`adm-q-card ${statusCls}`}
+                      ref={el => questionRefs.current[q.id] = el}
+                    >
+                      <div className="adm-q-header">
+                        <span className="adm-q-num bengali">প্রশ্ন {q.id}</span>
+                        <span className={`adm-q-badge ${statusCls}`}>
+                          {isCorrect ? '✓ সঠিক' : isAnswered ? '✗ ভুল' : '— বাদ'}
+                        </span>
                       </div>
-                    ) : (
-                      <div className="answer-card error-card">
-                        <div className="answer-grid">
-                          <div className="answer-column">
-                            <div className="column-label bengali">শিক্ষার্থীর উত্তর</div>
-                            <div className="pill-badge error">{selectedQuestion.studentAnswer}</div>
-                          </div>
-                          <div className="divider-column">
-                            <span className="status-icon-large error">✗</span>
-                          </div>
-                          <div className="answer-column">
-                            <div className="column-label bengali">সঠিক উত্তর</div>
-                            <div className="pill-badge success">{selectedQuestion.correctAnswer}</div>
-                          </div>
-                        </div>
+                      <div className="adm-q-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(q.question) }} />
+                      <div className="adm-options">
+                        {options.map(opt => {
+                          let optCls = ''
+                          if (opt.key === q.correctAnswer) optCls = 'correct-opt'
+                          if (isAnswered && opt.key === ans && !isCorrect) optCls += ' wrong-opt'
+                          if (isAnswered && opt.key === ans && isCorrect) optCls = 'correct-opt selected'
+                          return (
+                            <div key={opt.key} className={`adm-option ${optCls}`}>
+                              <span className="adm-opt-letter">{opt.key.toUpperCase()}</span>
+                              <span className="adm-opt-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(opt.text || '') }} />
+                              {opt.key === q.correctAnswer && <span className="adm-opt-icon correct">✓</span>}
+                              {isAnswered && opt.key === ans && !isCorrect && <span className="adm-opt-icon wrong">✗</span>}
+                            </div>
+                          )
+                        })}
                       </div>
-                    )}
-                  </>
-                ) : (
-                  <div className="answer-card neutral-card">
-                    <div className="card-header">
-                      <span className="status-label bengali">শিক্ষার্থী এই প্রশ্নের উত্তর দেয়নি</span>
+                      {q.explanation && (
+                        <div className="adm-explanation">
+                          <div className="adm-explanation-header bengali">💡 ব্যাখ্যা</div>
+                          <div className="adm-explanation-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(q.explanation) }} />
+                        </div>
+                      )}
                     </div>
-                    <div className="answer-display-single">
-                      <div className="column-label bengali">সঠিক উত্তর</div>
-                      <div className="pill-badge success">{selectedQuestion.correctAnswer}</div>
-                    </div>
-                  </div>
-                )}
+                  )
+                })}
               </div>
-
-              {/* Solution Section - Show here (BELOW) only if CORRECT */}
-              {selectedQuestion.solution && selectedQuestion.isCorrect && (
-                <div className="solution-section">
-                  <div className="solution-header bengali">
-                    <span className="solution-icon">💡</span>
-                    <strong>সমাধান/ব্যাখ্যা:</strong>
-                  </div>
-                  <div className="solution-content bengali" dangerouslySetInnerHTML={{ __html: renderLatex(selectedQuestion.solution) }} />
-                </div>
-              )}
-
             </div>
           </div>
         </div>
@@ -674,4 +537,3 @@ function SubmissionsTable({
 }
 
 export default SubmissionsTable
-
