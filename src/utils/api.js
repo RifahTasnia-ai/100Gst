@@ -60,14 +60,9 @@ export async function deleteStudent(studentName) {
 }
 
 export async function loadSubmissions() {
-  const isDev = window.location.hostname === 'localhost'
-  const url = isDev
-    ? '/answers.json'
-    : 'https://raw.githubusercontent.com/maruf7705/100GST/main/answers.json'
-
   let res;
   try {
-    res = await fetch(url, {
+    res = await fetch('/api/get-answers', {
       cache: 'no-store'
     })
   } catch (fetchErr) {
@@ -153,14 +148,9 @@ export async function removePendingStudent(studentName) {
 }
 
 export async function loadPendingStudents() {
-  const isDev = window.location.hostname === 'localhost'
-  const url = isDev
-    ? '/pending-students.json'
-    : 'https://raw.githubusercontent.com/maruf7705/100GST/main/pending-students.json'
-
   let res;
   try {
-    res = await fetch(url, {
+    res = await fetch('/api/get-pending-students', {
       cache: 'no-store'
     })
   } catch (fetchErr) {
@@ -168,7 +158,6 @@ export async function loadPendingStudents() {
   }
 
   if (!res.ok) {
-    // If file doesn't exist yet, return empty array
     if (res.status === 404) {
       return []
     }

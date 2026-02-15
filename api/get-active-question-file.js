@@ -1,3 +1,10 @@
+import { Buffer } from "buffer";
+
+const OWNER = process.env.GITHUB_OWNER || 'maruf7705';
+const REPO = process.env.GITHUB_REPO || '100GST';
+const BRANCH = process.env.GITHUB_BRANCH || "main";
+const TOKEN = process.env.GITHUB_TOKEN;
+
 export default async function handler(req, res) {
     if (req.method !== 'GET') {
         return res.status(405).json({ error: 'Method not allowed' })
@@ -6,73 +13,55 @@ export default async function handler(req, res) {
     try {
         const isDev = !process.env.VERCEL
 
-        // Add timestamp to bypass GitHub's aggressive caching (5-minute cache)
-        const cacheBuster = `?t=${Date.now()}`
-
-        // Get the config URL - from GitHub on Vercel, local in dev
-        const repoPath = process.env.GITHUB_REPO ? (process.env.GITHUB_OWNER ? `${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}` : process.env.GITHUB_REPO) : 'maruf7705/100GST'
-        const configUrl = isDev
-            ? `/exam-config.json${cacheBuster}`
-            : `https://raw.githubusercontent.com/${repoPath}/main/exam-config.json${cacheBuster}`
-
         let config;
 
-        try {
-            const response = await fetch(configUrl, {
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate',
-                    'Pragma': 'no-cache',
-                    'Expires': '0'
-                }
-            })
-
-            if (!response.ok) {
-                // Config doesn't exist, return default
+        if (isDev) {
+            // Local development - read from filesystem
+            try {
+                const fs = await import('fs');
+                const path = await import('path');
+                const configPath = path.default.join(process.cwd(), 'exam-config.json');
+                const content = fs.default.readFileSync(configPath, 'utf-8');
+                config = JSON.parse(content);
+            } catch (err) {
                 return res.status(200).json({
                     activeFile: 'questions.json',
                     setAt: null,
                     isDefault: true
                 })
             }
-
-            config = await response.json()
-        } catch (fetchError) {
-            // Config doesn't exist or network error, return default
-            console.warn('Config fetch error:', fetchError)
-            return res.status(200).json({
-                activeFile: 'questions.json',
-                setAt: null,
-                isDefault: true
-            })
-        }
-
-        // Verify the file still exists
-        const activeFileUrl = isDev
-            ? `/${config.activeQuestionFile}${cacheBuster}`
-            : `https://${req.headers.host}/${config.activeQuestionFile}${cacheBuster}`
-
-        try {
-            const fileResponse = await fetch(activeFileUrl, {
-                method: 'HEAD',
-                cache: 'no-store',
-                headers: {
-                    'Cache-Control': 'no-cache, no-store, must-revalidate'
+        } else {
+            // On Vercel - use GitHub Contents API (instant, no cache!)
+            try {
+                const url = `https://api.github.com/repos/${OWNER}/${REPO}/contents/exam-config.json?ref=${BRANCH}`;
+                const headers = {
+                    Accept: 'application/vnd.github+json',
+                };
+                if (TOKEN) {
+                    headers.Authorization = `Bearer ${TOKEN}`;
                 }
-            })
 
-            if (!fileResponse.ok) {
-                // File was deleted, return default
+                const response = await fetch(url, { headers, cache: 'no-store' });
+
+                if (!response.ok) {
+                    return res.status(200).json({
+                        activeFile: 'questions.json',
+                        setAt: null,
+                        isDefault: true
+                    })
+                }
+
+                const data = await response.json();
+                const decoded = Buffer.from(data.content, 'base64').toString('utf8');
+                config = JSON.parse(decoded);
+            } catch (fetchError) {
+                console.warn('Config fetch error:', fetchError)
                 return res.status(200).json({
                     activeFile: 'questions.json',
                     setAt: null,
-                    isDefault: true,
-                    warning: 'Previously selected file not found, using default'
+                    isDefault: true
                 })
             }
-        } catch (error) {
-            // Can't verify file, but return config anyway
-            console.warn('Could not verify active file:', error)
         }
 
         return res.status(200).json({
@@ -84,7 +73,6 @@ export default async function handler(req, res) {
     } catch (error) {
         console.error('Error getting active question file:', error)
 
-        // Return default on error
         return res.status(200).json({
             activeFile: 'questions.json',
             setAt: null,
