@@ -12,20 +12,5 @@
     "wrong": 0,
     "pass": false,
     "questionFile": "GST-Admission-2024-25.json"
-  },
-  {
-    "studentName": "test-2",
-    "answers": {
-      "79": "c",
-      "100": "d"
-    },
-    "score": 0.75,
-    "totalMarks": 100,
-    "timestamp": "2026-02-15T04:53:38.762Z",
-    "attempted": 2,
-    "correct": 1,
-    "wrong": 1,
-    "pass": false,
-    "questionFile": "GST-Admission-2024-25.json"
   }
 ]
