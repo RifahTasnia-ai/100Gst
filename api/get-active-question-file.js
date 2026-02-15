@@ -10,7 +10,7 @@ export default async function handler(req, res) {
         const cacheBuster = `?t=${Date.now()}`
 
         // Get the config URL - from GitHub on Vercel, local in dev
-        const repoPath = process.env.GITHUB_REPO ? (process.env.GITHUB_OWNER ? `${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}` : process.env.GITHUB_REPO) : 'maruf7705/80MCQ'
+        const repoPath = process.env.GITHUB_REPO ? (process.env.GITHUB_OWNER ? `${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}` : process.env.GITHUB_REPO) : 'maruf7705/100GST'
         const configUrl = isDev
             ? `/exam-config.json${cacheBuster}`
             : `https://raw.githubusercontent.com/${repoPath}/main/exam-config.json${cacheBuster}`
