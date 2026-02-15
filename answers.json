@@ -1,1 +1,16 @@
-[]
+[
+  {
+    "studentName": "Maruf",
+    "answers": {
+      "100": "c"
+    },
+    "score": 1,
+    "totalMarks": 100,
+    "timestamp": "2026-02-15T05:17:34.253Z",
+    "attempted": 1,
+    "correct": 1,
+    "wrong": 0,
+    "pass": false,
+    "questionFile": "GST-Admission-2024-25.json"
+  }
+]
