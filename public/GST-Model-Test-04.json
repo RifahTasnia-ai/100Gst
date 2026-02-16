@@ -2,7 +2,7 @@
   {
     "id": 1,
     "subject": "Physics",
-    "question": "GKwU wjd‡Ui `woi Uvb 20N | wjdwU 2m/s mg‡e‡M Pj‡j ÿgZv KZ?",
+    "question": "একটি বস্তুর প্রযুক্ত বল 20N। বস্তুটি 2m/s বেগে চললে ক্ষমতা কত?",
     "options": {
       "a": "5W",
       "b": "20W",
@@ -18,7 +18,7 @@
   {
     "id": 2,
     "subject": "Physics",
-    "question": "wPÎvbyhvqx eZ©bx‡Z I Gi gvb KZ?",
+    "question": "চিত্রে দেখানো বর্তনীতে I এর মান কত?",
     "options": {
       "a": "$$\\frac{40}{3}A$$",
       "b": "$$0 A$$",
@@ -26,7 +26,7 @@
       "d": "$$None$$"
     },
     "correctAnswer": "c",
-    "explanation": "†h‡nZz Capacitor DC eøK K‡i ZvB , $$I=\\frac{20}{2}=10 A$$",
+    "explanation": "যেহেতু Capacitor DC open করে তাই , $$I=\\frac{20}{2}=10 A$$",
     "hasDiagram": true,
     "svg_code": "",
     "topic": ""
@@ -34,15 +34,15 @@
   {
     "id": 3,
     "subject": "Physics",
-    "question": "GKwU Zvc BwÄ‡bi `ÿZv 40% hLb ZvcMÖvn‡Ki ZvcgvÎv $$27℃$$ | Gi `ÿZv wØ¸Y Ki‡Z-",
+    "question": "একটি তাপীয় ইঞ্জিনের কর্মদক্ষতা 40% যখন তাপ উৎসের তাপমাত্রা $$27℃$$ | এর কর্মদক্ষতা দ্বিগুণ করতে-",
     "options": {
-      "a": "Zvc Dr‡mi ZvcgvÎv 1100K Kgv‡Z n‡e",
-      "b": "Zvc Dr‡mi ZvcgvÎv 1000K Kgv‡Z n‡e",
-      "c": "Zvc Dr‡mi ZvcgvÎv 1000K evov‡Z n‡e",
-      "d": "Zvc Dr‡mi ZvcgvÎv 1100K evov‡Z n‡e"
+      "a": "তাপ উৎসের তাপমাত্রা 1100K কমাতে হবে",
+      "b": "তাপ উৎসের তাপমাত্রা 1000K কমাতে হবে",
+      "c": "তাপ উৎসের তাপমাত্রা 1000K বাড়াতে হবে",
+      "d": "তাপ উৎসের তাপমাত্রা 1100K বাড়াতে হবে"
     },
     "correctAnswer": "c",
-    "explanation": "$$1−\\frac{300}{{T}_{1}}=\\frac{40}{100}⇒\\frac{60}{100}=\\frac{300}{{T}_{1}}$$ $$⇒{T}_{1}=\\frac{100×300}{60}=500K$$ $$1−\\frac{300}{{T}_{1}}=\\frac{80}{100}⇒\\frac{20}{100}=\\frac{300}{{T}_{1}}$$ $$⇒{T}_{1}=\\frac{100×300}{20}=1500K$$ $$∴$$ Zvc Dr‡mi ZvcgvÎv $$(1500K−500K)=1000K$$ evov‡Z n‡e|",
+    "explanation": "$$1−\\frac{300}{{T}_{1}}=\\frac{40}{100}⇒\\frac{60}{100}=\\frac{300}{{T}_{1}}$$ $$⇒{T}_{1}=\\frac{100×300}{60}=500K$$ $$1−\\frac{300}{{T}_{1}}=\\frac{80}{100}⇒\\frac{20}{100}=\\frac{300}{{T}_{1}}$$ $$⇒{T}_{1}=\\frac{100×300}{20}=1500K$$ $$∴$$ তাপ উৎসের তাপমাত্রা $$(1500K−500K)=1000K$$ বাড়াতে হবে|",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
