@@ -40,8 +40,9 @@ async function saveLocally(data) {
   if (existingIndex === -1) {
     filteredData.push(data);
   } else {
-    // Update all fields for existing student (heartbeat)
-    filteredData[existingIndex] = { ...filteredData[existingIndex], ...data };
+    // Update progress fields for existing student (heartbeat) but KEEP original timestamp
+    const originalTimestamp = filteredData[existingIndex].timestamp;
+    filteredData[existingIndex] = { ...filteredData[existingIndex], ...data, timestamp: originalTimestamp };
   }
 
   await fs.writeFile(filePath, JSON.stringify(filteredData, null, 2));
@@ -109,8 +110,9 @@ export default async function handler(req, res) {
     if (existingIndex === -1) {
       filteredList.push(pendingStudent);
     } else {
-      // Update all fields for heartbeat
-      filteredList[existingIndex] = { ...filteredList[existingIndex], ...pendingStudent };
+      // Update progress fields for heartbeat but KEEP original timestamp
+      const originalTimestamp = filteredList[existingIndex].timestamp;
+      filteredList[existingIndex] = { ...filteredList[existingIndex], ...pendingStudent, timestamp: originalTimestamp };
     }
 
     const updated = JSON.stringify(filteredList, null, 2);
