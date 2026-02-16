@@ -57,9 +57,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ error: "studentName required" });
   }
 
+  // ALWAYS use server timestamp to avoid client clock-skew issues
+  const serverTimestamp = new Date().toISOString();
+
   const pendingStudent = {
     studentName: body.studentName,
-    timestamp: body.timestamp || new Date().toISOString(),
+    timestamp: serverTimestamp,
     status: "Pending",
     answers: body.answers || {},
     currentQuestion: body.currentQuestion || 0,
@@ -71,7 +74,7 @@ export default async function handler(req, res) {
   if (!process.env.VERCEL_ENV) {
     try {
       await saveLocally(pendingStudent);
-      return res.status(200).json({ success: true });
+      return res.status(200).json({ success: true, serverTimestamp });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ error: "Failed to save pending student locally" });
@@ -113,7 +116,7 @@ export default async function handler(req, res) {
     const updated = JSON.stringify(filteredList, null, 2);
     await updateFile(updated, sha);
 
-    return res.status(200).json({ success: true });
+    return res.status(200).json({ success: true, serverTimestamp });
   } catch (err) {
     console.error(err);
     return res.status(500).json({ error: "Failed to save pending student" });

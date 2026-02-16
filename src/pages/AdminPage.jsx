@@ -86,7 +86,6 @@ function AdminPage() {
   // Group submissions by student (latest only) and merge with pending students
   const submissionsByStudent = useMemo(() => {
     // --- FILTER OLD DATA FROM DISPLAY ---
-    const TEN_MINUTES_MS = 10 * 60 * 1000;
     const now = Date.now();
     const groups = {}
 

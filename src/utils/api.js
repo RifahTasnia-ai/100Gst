@@ -112,7 +112,7 @@ export async function savePendingStudent(studentName, timestamp = null, progress
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentName,
-        timestamp: timestamp ? new Date(timestamp).toISOString() : undefined,
+        // timestamp is now generated server-side to avoid client clock-skew
         ...progressData
       })
     })

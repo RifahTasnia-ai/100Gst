@@ -35,7 +35,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
   const [visitedQuestions, setVisitedQuestions] = useState(new Set([0]))
   const [timeLeft, setTimeLeft] = useState(DURATION_SECONDS)
   const [markedForReview, setMarkedForReview] = useState(new Set())
-  const [examStartTime] = useState(Date.now()) // Track when exam started
+  const [examStartTime] = useState(Date.now()) // Track when exam started (used for local display only)
   const [pendingSent, setPendingSent] = useState(false) // Track if pending status was sent
   const [submissionStatus, setSubmissionStatus] = useState({ status: 'idle', retryCount: 0 })
 
@@ -240,7 +240,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     const initialTimer = setTimeout(() => {
       if (!pendingSent) {
         setPendingSent(true)
-        savePendingStudent(studentName, examStartTime, {
+        savePendingStudent(studentName, null, {
           answers,
           currentQuestion: currentQuestionIndex + 1,
           answeredCount: Object.keys(answers).length,
@@ -254,9 +254,9 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       }
     }, ONE_MINUTE)
 
-    // 2. Heartbeat every 2 minutes (syncs answers for spectate)
+    // 2. Heartbeat every 30 seconds (syncs answers for spectate)
     const heartbeatInterval = setInterval(() => {
-      savePendingStudent(studentName, examStartTime, {
+      savePendingStudent(studentName, null, {
         answers,
         currentQuestion: currentQuestionIndex + 1,
         answeredCount: Object.keys(answers).length,
@@ -273,7 +273,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       clearTimeout(initialTimer)
       clearInterval(heartbeatInterval)
     }
-  }, [status, pendingSent, examStartTime, studentName, answers, currentQuestionIndex, questions, questionFile])
+  }, [status, pendingSent, studentName, answers, currentQuestionIndex, questions, questionFile])
 
   // Background sync for pending submissions (network reconnection handling)
   useEffect(() => {
