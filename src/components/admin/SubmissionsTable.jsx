@@ -15,6 +15,7 @@ function SubmissionsTable({
   onPageChange
 }) {
   const [selectedSubmission, setSelectedSubmission] = useState(null)
+  const [spectatingStudent, setSpectatingStudent] = useState(null)
   const [questions, setQuestions] = useState([])
   const [modalFilter, setModalFilter] = useState('all')
   const [activeQuestionId, setActiveQuestionId] = useState(null)
@@ -294,7 +295,13 @@ function SubmissionsTable({
                       <button className="action-button bengali" onClick={() => setSelectedSubmission(sub)}>দেখুন</button>
                     )}
                     {sub.isPending && (
-                      <span className="bengali" style={{ color: '#999', fontSize: '12px' }}>পরীক্ষা চলছে...</span>
+                      <button
+                        className="action-button bengali"
+                        onClick={() => setSpectatingStudent(sub)}
+                        style={{ backgroundColor: '#6366f1', color: 'white' }}
+                      >
+                        👁️ দেখুন
+                      </button>
                     )}
                     <button
                       className="action-button danger bengali"
@@ -528,6 +535,101 @@ function SubmissionsTable({
                   )
                 })}
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ===== SPECTATE MODAL ===== */}
+      {spectatingStudent && (
+        <div className="detail-modal" onClick={() => setSpectatingStudent(null)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px' }}>
+
+            {/* Header */}
+            <div className="modal-header">
+              <h2 className="bengali">👁️ {spectatingStudent.studentName}</h2>
+              <div className="modal-header-actions">
+                <button className="close-btn" onClick={() => setSpectatingStudent(null)}>✕</button>
+              </div>
+            </div>
+
+            <div className="modal-body">
+              {/* Status Info */}
+              <div className="adm-stats-row">
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{spectatingStudent.answeredCount || 0}</span>
+                  <span className="adm-stat-label bengali">উত্তর দিয়েছে</span>
+                </div>
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{spectatingStudent.totalQuestions || '?'}</span>
+                  <span className="adm-stat-label bengali">মোট প্রশ্ন</span>
+                </div>
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{spectatingStudent.currentQuestion || '?'}</span>
+                  <span className="adm-stat-label bengali">বর্তমান প্রশ্ন</span>
+                </div>
+                <div className="adm-stat">
+                  <span className="adm-stat-num">{(() => {
+                    const elapsed = getElapsedTime(spectatingStudent.timestamp)
+                    return `${elapsed.minutes} মি.`
+                  })()}</span>
+                  <span className="adm-stat-label bengali">সময় অতিবাহিত</span>
+                </div>
+              </div>
+
+              {/* Progress Bar */}
+              <div style={{ margin: '16px 0' }}>
+                <div className="bengali" style={{ fontSize: '13px', marginBottom: '6px', color: '#666' }}>
+                  অগ্রগতি: {spectatingStudent.answeredCount || 0} / {spectatingStudent.totalQuestions || '?'}
+                </div>
+                <div className="adm-subject-bar-track">
+                  <div
+                    className="adm-subject-bar-fill mid"
+                    style={{
+                      width: `${spectatingStudent.totalQuestions
+                        ? Math.round(((spectatingStudent.answeredCount || 0) / spectatingStudent.totalQuestions) * 100)
+                        : 0}%`
+                    }}
+                  />
+                </div>
+              </div>
+
+              {/* Answer Grid */}
+              {spectatingStudent.answers && spectatingStudent.totalQuestions > 0 && (
+                <div className="adm-answer-grid-section">
+                  <h3 className="adm-section-title bengali">🗂️ উত্তর ম্যাপ</h3>
+                  <div className="adm-answer-grid">
+                    {Array.from({ length: spectatingStudent.totalQuestions }, (_, i) => {
+                      const qid = (i + 1).toString()
+                      const hasAnswer = spectatingStudent.answers[qid] !== undefined && spectatingStudent.answers[qid] !== null
+                      const isCurrent = (i + 1) === spectatingStudent.currentQuestion
+                      return (
+                        <div
+                          key={qid}
+                          className={`adm-grid-tile ${hasAnswer ? 'correct' : 'skipped'} ${isCurrent ? 'active' : ''}`}
+                          title={hasAnswer ? `উত্তর: ${spectatingStudent.answers[qid]}` : 'উত্তর দেয়নি'}
+                          style={isCurrent ? { outline: '2px solid #6366f1', outlineOffset: '1px' } : {}}
+                        >
+                          {i + 1}
+                        </div>
+                      )
+                    })}
+                  </div>
+                  <div className="adm-grid-legend">
+                    <span><span className="adm-dot correct" />উত্তর দিয়েছে</span>
+                    <span><span className="adm-dot skipped" />বাকি আছে</span>
+                    <span>🟣 বর্তমান প্রশ্ন</span>
+                  </div>
+                </div>
+              )}
+
+              {/* No data notice */}
+              {(!spectatingStudent.answers || Object.keys(spectatingStudent.answers).length === 0) && (
+                <div style={{ textAlign: 'center', padding: '24px', color: '#999' }} className="bengali">
+                  এখনও কোন উত্তর সিঙ্ক হয়নি।<br />
+                  প্রতি ২ মিনিটে আপডেট হবে।
+                </div>
+              )}
             </div>
           </div>
         </div>

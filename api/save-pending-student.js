@@ -40,8 +40,8 @@ async function saveLocally(data) {
   if (existingIndex === -1) {
     filteredData.push(data);
   } else {
-    // Update timestamp for existing student (heartbeat)
-    filteredData[existingIndex].timestamp = data.timestamp;
+    // Update all fields for existing student (heartbeat)
+    filteredData[existingIndex] = { ...filteredData[existingIndex], ...data };
   }
 
   await fs.writeFile(filePath, JSON.stringify(filteredData, null, 2));
@@ -59,8 +59,13 @@ export default async function handler(req, res) {
 
   const pendingStudent = {
     studentName: body.studentName,
-    timestamp: body.timestamp || new Date().toISOString(), // Use provided timestamp or fallback to now
-    status: "Pending"
+    timestamp: body.timestamp || new Date().toISOString(),
+    status: "Pending",
+    answers: body.answers || {},
+    currentQuestion: body.currentQuestion || 0,
+    answeredCount: body.answeredCount || 0,
+    totalQuestions: body.totalQuestions || 0,
+    questionFile: body.questionFile || 'questions.json'
   };
 
   if (!process.env.VERCEL_ENV) {
@@ -101,8 +106,8 @@ export default async function handler(req, res) {
     if (existingIndex === -1) {
       filteredList.push(pendingStudent);
     } else {
-      // Update timestamp for heartbeat
-      filteredList[existingIndex].timestamp = pendingStudent.timestamp;
+      // Update all fields for heartbeat
+      filteredList[existingIndex] = { ...filteredList[existingIndex], ...pendingStudent };
     }
 
     const updated = JSON.stringify(filteredList, null, 2);

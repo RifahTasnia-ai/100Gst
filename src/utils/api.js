@@ -104,7 +104,7 @@ export async function loadLatestQuestions() {
   return { file: 'questions.json', version: 0 }
 }
 
-export async function savePendingStudent(studentName, timestamp = null) {
+export async function savePendingStudent(studentName, timestamp = null, progressData = {}) {
   let res;
   try {
     res = await fetch('/api/save-pending-student', {
@@ -112,7 +112,8 @@ export async function savePendingStudent(studentName, timestamp = null) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         studentName,
-        timestamp: timestamp ? new Date(timestamp).toISOString() : undefined
+        timestamp: timestamp ? new Date(timestamp).toISOString() : undefined,
+        ...progressData
       })
     })
   } catch (fetchErr) {

@@ -234,13 +234,19 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     if (status !== STATUS.RUNNING) return
 
     const ONE_MINUTE = 1 * 60 * 1000 // 1 minute
-    const FIVE_MINUTES = 5 * 60 * 1000 // 5 minutes
+    const TWO_MINUTES = 2 * 60 * 1000 // 2 minutes
 
     // 1. Initial trigger after 1 minute
     const initialTimer = setTimeout(() => {
       if (!pendingSent) {
         setPendingSent(true)
-        savePendingStudent(studentName, examStartTime)
+        savePendingStudent(studentName, examStartTime, {
+          answers,
+          currentQuestion: currentQuestionIndex + 1,
+          answeredCount: Object.keys(answers).length,
+          totalQuestions: questions.length,
+          questionFile
+        })
           .then(() => {
             console.log(`${studentName} marked as pending after 1 minute`)
           })
@@ -248,20 +254,26 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       }
     }, ONE_MINUTE)
 
-    // 2. Heartbeat every 5 minutes (to ensure we "catch" them if they are still there)
+    // 2. Heartbeat every 2 minutes (syncs answers for spectate)
     const heartbeatInterval = setInterval(() => {
-      savePendingStudent(studentName, examStartTime)
+      savePendingStudent(studentName, examStartTime, {
+        answers,
+        currentQuestion: currentQuestionIndex + 1,
+        answeredCount: Object.keys(answers).length,
+        totalQuestions: questions.length,
+        questionFile
+      })
         .then(() => {
-          console.log(`Heartbeat: ${studentName} is still taking exam`)
+          console.log(`Heartbeat: ${studentName} synced ${Object.keys(answers).length} answers`)
         })
         .catch(err => console.error('Failed to send heartbeat:', err))
-    }, FIVE_MINUTES)
+    }, TWO_MINUTES)
 
     return () => {
       clearTimeout(initialTimer)
       clearInterval(heartbeatInterval)
     }
-  }, [status, pendingSent, examStartTime, studentName])
+  }, [status, pendingSent, examStartTime, studentName, answers, currentQuestionIndex, questions, questionFile])
 
   // Background sync for pending submissions (network reconnection handling)
   useEffect(() => {
