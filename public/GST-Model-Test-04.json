@@ -642,7 +642,7 @@
   {
     "id": 41,
     "subject": "Chemistry",
-    "question": "AvqbxKiY wef‡ei †ÿ‡Î wb‡Pi †Kvb µgwU mwVK ?",
+    "question": "আয়নীকরণ বিভবের ক্ষেত্রে নিচের কোন ক্রমটি সঠিক ?",
     "options": {
       "a": "$$Be<B<O<N$$",
       "b": "$$N<O<Be<B$$",
@@ -650,7 +650,7 @@
       "d": "$$O<N<B<Be$$"
     },
     "correctAnswer": "c",
-    "explanation": "Be c~Y© AiweUvj _vKvi Kvi‡Y Ges N Aa©c~Y© AiweUvj _vKvi Kvi‡Y h_vµ‡g B I O †_‡K AvqbxKiY wefe †ewk nq|",
+    "explanation": "Be পূর্ণ অরবিটাল থাকার কারণে এবং N অর্ধপূর্ণ অরবিটাল থাকার কারণে যথাক্রমে B ও O থেকে আয়নীকরণ বিভব বেশি হয়|",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -658,7 +658,7 @@
   {
     "id": 42,
     "subject": "Chemistry",
-    "question": "$${1}^{∘}, {2}^{∘}$$ Ges $${3}^{∘}$$ A¨vwgbmg~‡ni cv_©K¨ Kivi Rb¨ †Kvb weKviK e¨eüZ nq ?",
+    "question": "$${1}^{∘}, {2}^{∘}$$ এবং $${3}^{∘}$$ অ্যামিনসমূহের পার্থক্য করার জন্য কোন বিকারক ব্যবহৃত হয় ?",
     "options": {
       "a": "$$HN{O}_{2}$$",
       "b": "$$HN{O}_{3}$$",
@@ -674,7 +674,7 @@
   {
     "id": 43,
     "subject": "Chemistry",
-    "question": "GwmW A¨vbnvBWªvB‡Wi Kvh©Kix g~jK †KvbwU ?",
+    "question": "এসিড অ্যানহাইড্রাইডের কার্যকরী মূলক কোনটি ?",
     "options": {
       "a": "$$−COX$$",
       "b": "$$≡C−CO−C≡$$",
@@ -738,7 +738,7 @@
   {
     "id": 47,
     "subject": "Chemistry",
-    "question": "wb‡Pi †KvbwU mej Zwor we‡køl¨ ?",
+    "question": "নিচের কোনটি সবল তড়িৎ বিশ্লেষ্য ?",
     "options": {
       "a": "$$HF$$",
       "b": "$$HCl$$",
@@ -770,7 +770,7 @@
   {
     "id": 49,
     "subject": "Chemistry",
-    "question": "$${70}^{∘}C$$ ZvcgvÎvq I $$2atm$$ Pv‡c $$PC{l}_{5}$$ Gi $$50%$$ we‡qvwRZ n‡j D³ we‡qvR‡b $${K}_{p}$$ KZ ?",
+    "question": "$${70}^{∘}C$$ তাপমাত্রায় ও $$2atm$$ চাপে $$PC{l}_{5}$$ এর $$50%$$ বিয়োজিত হলে উক্ত বিয়োজনে $${K}_{p}$$ কত ?",
     "options": {
       "a": "$$\\frac{1}{3}atm$$",
       "b": "$$\\frac{1}{3}at{m}^{−1}$$",
@@ -946,7 +946,7 @@
   {
     "id": 60,
     "subject": "Higher Mathematics",
-    "question": "$$(5+2i)$$ †K wb‡Pi †KvbwU Øviv ¸Y Ki‡j AvM©y‡g›U $$\\frac{π}{2}$$ †Kv‡Y Ny‡i hv‡e?",
+    "question": "$$(5+2i)$$ কে নিচের কোনটি দ্বারা গুণ করলে আর্গুমেন্ট $$\\frac{π}{2}$$ কোণে ঘুরে যাবে?",
     "options": {
       "a": "$$−5$$",
       "b": "$$3$$",
@@ -954,7 +954,7 @@
       "d": "both a and b"
     },
     "correctAnswer": "c",
-    "explanation": "RwUj msL¨v‡K $$ni$$ Øviv ¸Y Ki‡j AvMy©‡g›U $$\\frac{π}{2}$$ †Kv‡Y Ny‡i hvq| $$[n≠0]$$",
+    "explanation": "জটিল সংখ্যাকে $$ni$$ দ্বারা গুণ করলে আর্গুমেন্ট $$\\frac{π}{2}$$ কোণে ঘুরে যায়| $$[n≠0]$$",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -962,7 +962,7 @@
   {
     "id": 61,
     "subject": "Higher Mathematics",
-    "question": "†Kv‡bv Kwb‡Ki Dr‡Kw›`ªKZv 2 I Dc‡K›`ª $$(0, 5)$$ ; Gi GKwU wbqvg‡Ki mgxKiY $$y+4=0$$ n‡j KwbKwUi mgxKiY-",
+    "question": "কোনো কনিকের উৎকেন্দ্রিকতা 2 ও উপকেন্দ্র $$(0, 5)$$ ; এর একটি নিয়ামকের সমীকরণ $$y+4=0$$ হলে কনিকটির সমীকরণ-",
     "options": {
       "a": "$${x}^{2}−3{y}^{2}−42y−39=0$$",
       "b": "$${x}^{2}−3{y}^{2}+42y+39=0$$",
@@ -978,7 +978,7 @@
   {
     "id": 62,
     "subject": "Higher Mathematics",
-    "question": "$$\\frac{2}{a+2i}=\\frac{2i}{b+i}$$ n‡j a I b Gi gvb KZ?",
+    "question": "$$\\frac{2}{a+2i}=\\frac{2i}{b+i}$$ হলে a ও b এর মান কত?",
     "options": {
       "a": "$$1,−2$$",
       "b": "$$−2, 1$$",
@@ -986,7 +986,7 @@
       "d": "$$2,−1$$"
     },
     "correctAnswer": "a",
-    "explanation": "$$\\frac{2}{a+2i}=\\frac{2i}{b+i}⇒2b+2i=2ai+4{i}^{2}$$ $$⇒2i+4=2ai−2b ∴a=1$$ Ges $$b=−2$$ [ ev¯Íe I KvíwbK As‡ki mnM mgxK…Z K‡i ]",
+    "explanation": "$$\\frac{2}{a+2i}=\\frac{2i}{b+i}⇒2b+2i=2ai+4{i}^{2}$$ $$⇒2i+4=2ai−2b ∴a=1$$ এবং $$b=−2$$ [ বাস্তব ও কাল্পনিক অংশের সহগ সমীকৃত করে ]",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
