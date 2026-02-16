@@ -26,7 +26,7 @@
       "d": "$$None$$"
     },
     "correctAnswer": "c",
-    "explanation": "যেহেতু Capacitor DC open করে তাই , $$I=\\frac{20}{2}=10 A$$",
+    "explanation": "যেহেতু Capacitor DC ব্লক করে তাই , $$I=\\frac{20}{2}=10 A$$",
     "hasDiagram": true,
     "svg_code": "",
     "topic": ""
@@ -66,7 +66,7 @@
   {
     "id": 5,
     "subject": "Physics",
-    "question": "Bqs‡qi wØwPo cixÿvq †K›`ªxq D¾¡j †Wviv †_‡K n Zg D¾¡j †Wviv KZ `~‡i m„wó nq?",
+    "question": "ইয়ং-এর দ্বি-চিড় পরীক্ষায় কেন্দ্রীয় উজ্জ্বল ডোরা থেকে n তম উজ্জ্বল ডোরা কত দূরে সৃষ্টি হয়?",
     "options": {
       "a": "$$\\frac{Da}{2}nλ$$",
       "b": "$$\\frac{D}{a}nλ$$",
@@ -98,7 +98,7 @@
   {
     "id": 7,
     "subject": "Physics",
-    "question": "$$3kg$$ f‡ii GKwU e¯‘ 6m ˆ`N¨© I 4m D”PZvi AvbZ Z‡ji Dci †_‡K wb‡P co‡Q| Nl©Y ej 16N n‡j me©‡kl †eM KZ? $$[g=10m{s}^{−2}]$$",
+    "question": "$$3kg$$ ভরের একটি বস্তু 6m দৈর্ঘ্য ও 4m উচ্চতার আনত তলের উপর থেকে নিচে পড়ছে। ঘর্ষণ বল 16N হলে সর্বশেষ বেগ কত? $$[g=10m{s}^{−2}]$$",
     "options": {
       "a": "$$5m{s}^{−1}$$",
       "b": "$$4m{s}^{−1}$$",
@@ -114,7 +114,7 @@
   {
     "id": 8,
     "subject": "Physics",
-    "question": "wP‡Î †`Lv‡bv c_ w`‡q GKwU $$10 kg$$ f‡ii cv_i‡K c„w_exi AwfKl©xq †ÿ‡Î A we›`y †_‡K B we›`y‡Z ¯’vbvšÍwiZ Kiv nj| AwfKl© e‡ji Kvi‡Y K…ZKvR KZ?",
+    "question": "চিত্রে দেখানো পথ দিয়ে একটি $$10 kg$$ ভরের পাথরকে পৃথিবীর অভিকর্ষীয় ক্ষেত্রে A বিন্দু থেকে B বিন্দুতে স্থানান্তরিত করা হলো। অভিকর্ষ বলের কারণে কৃতকাজ কত?",
     "options": {
       "a": "1050 J",
       "b": "1800 J",
@@ -130,7 +130,7 @@
   {
     "id": 9,
     "subject": "Physics",
-    "question": "†Kv‡bv U«vbwR÷‡ii Kgb †em mvwK©‡U GwgUvi Kv‡i›U $$100A$$ | G † ÿ‡Î DbœxZ Kivq Kv‡j±i Kv‡i›U $$80A$$ †_‡K $$98A$$ G DbœxZ n‡jv| G † ÿ‡Î Kv‡i›U G¨vgwcøwd‡Kkb d¨v±i KZ?",
+    "question": "কোনো ট্রানজিস্টরের কমন বেস সার্কিট এমিটার কারেন্ট $$100A$$ । এ ক্ষেত্রে উন্নীত করায় কালেক্টর কারেন্ট $$80A$$ থেকে $$98A$$ এ উন্নীত হলো। এ ক্ষেত্রে কারেন্ট অ্যামপ্লিফিকেশন ফ্যাক্টর কত?",
     "options": {
       "a": "100",
       "b": "147",
@@ -146,7 +146,7 @@
   {
     "id": 10,
     "subject": "Physics",
-    "question": "†Kv‡bv GKw`‡b evqygÐ‡ji ZvcgvÎv $${20}^{∘} C$$ Ges wkwkiv¼ $${15}^{∘}C$$ | $${20}^{∘}C$$ I $${15}^{∘}C$$ ZvcgvÎvq m¤c„³ Rjxq ev‡®úi Pvc h_vµ‡g $$4×{10}^{−3}m$$ I $$2×{10}^{−3} m$$ cvi` n‡j, Av‡cw¶K Av`ª©Zv KZ?",
+    "question": "কোনো একদিনে বায়ুমণ্ডলের তাপমাত্রা $${20}^{∘} C$$ এবং শিশিরাঙ্ক $${15}^{∘}C$$ | $${20}^{∘}C$$ ও $${15}^{∘}C$$ তাপমাত্রায় সম্পৃক্ত জলীয় বাষ্পের চাপ যথাক্রমে $$4×{10}^{−3}m$$ ও $$2×{10}^{−3} m$$ পারদ হলে, আপেক্ষিক আর্দ্রতা কত?",
     "options": {
       "a": "60%",
       "b": "50%",
@@ -162,7 +162,7 @@
   {
     "id": 11,
     "subject": "Physics",
-    "question": "†Kv‡bv †ZRwµq c`v‡_©i Aa©vqy 12 w`b| 24 w`b ci KZ Ask Aewkó _vK‡e?",
+    "question": "কোনো তেজস্ক্রিয় পদার্থের অর্ধায়ু 12 দিন। 24 দিন পর কত অংশ অবশিষ্ট থাকবে?",
     "options": {
       "a": "60%",
       "b": "75%",
@@ -170,7 +170,7 @@
       "d": "50%"
     },
     "correctAnswer": "c",
-    "explanation": "cÖ_g 12 w`‡b fvO‡e 50% ; wØZxq 12 w`‡b fvO‡e Aewkó 50% Gi 50% ; myZivs Aewkó _vK‡e 25% |",
+    "explanation": "প্রথম 12 দিনে ভাঙবে 50% ; দ্বিতীয় 12 দিনে ভাঙবে অবশিষ্ট 50% এর 50% ; সুতরাং অবশিষ্ট থাকবে 25% |",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -178,7 +178,7 @@
   {
     "id": 12,
     "subject": "Physics",
-    "question": "GKwU mij †`vj‡Ki †`vjbKvj T | †`vjKwU gy³fv‡e co‡Z _vK‡j cwiewZ©Z †`vjbKvj n‡e-",
+    "question": "একটি সরল দোলকের দোলনকাল T | দোলকটি মুক্তভাবে পড়তে থাকলে পরিবর্তিত দোলনকাল হবে-",
     "options": {
       "a": "$$2s$$",
       "b": "$$∞$$",
@@ -186,7 +186,7 @@
       "d": "$$T$$"
     },
     "correctAnswer": "b",
-    "explanation": "gy³fv‡e cošÍ Ae¯’vq $$g=0$$ [AwfKl©R Z¡iY g , Avevi †`vj‡Ki Z¡iYI g ] $$T=2π\\sqrt{\\frac{L}{g}}=2π\\sqrt{\\frac{L}{0}}=∞$$",
+    "explanation": "মুক্তভাবে পড়ন্ত অবস্থায় $$g=0$$ [অভিকর্ষজ ত্বরণ g , আবার দোলকের ত্বরণও g ] $$T=2π\\sqrt{\\frac{L}{g}}=2π\\sqrt{\\frac{L}{0}}=∞$$",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -194,7 +194,7 @@
   {
     "id": 13,
     "subject": "Physics",
-    "question": "$$2 N{m}^{−1}$$ w¯úªs aªæe‡Ki GKwU w¯úªs Gi ˆ`N©¨ mvg¨ve¯’vb †_‡K 0.1m e„w× Ki‡j w¯úªs Gi wefekw³ KZ n‡e?",
+    "question": "$$2 N{m}^{−1}$$ স্প্রিং ধ্রুবকের একটি স্প্রিং এর দৈর্ঘ্য সাম্যাবস্থান থেকে 0.1m বৃদ্ধি করলে স্প্রিং এর বিভবশক্তি কত হবে?",
     "options": {
       "a": "$$0.01 J$$",
       "b": "$$0.1 J$$",
@@ -226,15 +226,15 @@
   {
     "id": 15,
     "subject": "Physics",
-    "question": "$$50gm$$ f‡ii GKwU e¯‘‡K GKwU $$20cm$$ ˆ `‡N¨©i myZvi GK cÖv‡šÍ †eu‡a e„ËvKvi c‡_ cÖwZ †m‡K‡Û 3 evi Nyiv‡bv n‡”Q| e¯‘wUi fi AcwiewZ©Z †i‡L myZvi ˆ`N¨© wØ¸Y K‡i K¤úv¼ A‡a©K Kiv n‡j Z¡iY KZ ¸Y n‡e?",
+    "question": "$$50gm$$ ভরের একটি বস্তুকে একটি $$20cm$$ দৈর্ঘ্যের সুতার এক প্রান্তে বেঁধে বৃত্তাকার পথে প্রতি সেকেন্ডে 3 বার ঘুরানো হচ্ছে| বস্তুটির ভর অপরিবর্তিত রেখে সুতার দৈর্ঘ্য দ্বিগুণ করে কম্পাঙ্ক অর্ধেক করা হলে ত্বরণ কত গুণ হবে?",
     "options": {
-      "a": "$$0.5$$ ¸Y",
-      "b": "2 ¸Y",
-      "c": "AcwiewZ©Z _vK‡e",
-      "d": "4 ¸Y"
+      "a": "$$0.5$$ গুণ",
+      "b": "2 গুণ",
+      "c": "অপরিবর্তিত থাকবে",
+      "d": "4 গুণ"
     },
     "correctAnswer": "a",
-    "explanation": "†K›`ªgyLx Z¡iY , $$a= {ω}^{2}r$$ $$∴\\frac{{a}_{2}}{{a}_{1}}=\\frac{{ω}_{2}^{2}{r}_{2}}{{ω}_{1}^{2}{r}_{1}}=\\frac{1}{4} × 2=0.5$$",
+    "explanation": "কেন্দ্রমুখী ত্বরণ , $$a= {ω}^{2}r$$ $$∴\\frac{{a}_{2}}{{a}_{1}}=\\frac{{ω}_{2}^{2}{r}_{2}}{{ω}_{1}^{2}{r}_{1}}=\\frac{1}{4} × 2=0.5$$",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -306,7 +306,7 @@
   {
     "id": 20,
     "subject": "Physics",
-    "question": "GKwU †gvUiMvoxi †nW jvB‡Ui wdjv‡g›U $$5A$$ Zwor cÖevn enb K‡i| cÖvšÍØ‡qi wefe cv_©K¨ $$6V$$ n‡j wdjv‡g‡›Ui †iva KZ?",
+    "question": "একটি মোটরগাড়ির হেড লাইটের ফিলামেন্ট $$5A$$ তড়িৎ প্রবাহ বহন করে| প্রান্তদ্বয়ের বিভব পার্থক্য $$6V$$ হলে ফিলামেন্টের রোধ কত?",
     "options": {
       "a": "$$1.25Ω$$",
       "b": "$$1.0Ω$$",
@@ -314,7 +314,7 @@
       "d": "$$2.1Ω$$"
     },
     "correctAnswer": "c",
-    "explanation": "GLv‡b , $$I= 5A; V=6V; R=?$$ $$R=\\frac{V}{I}=\\frac{6}{5}Ω=1.2Ω$$",
+    "explanation": "এখানে , $$I= 5A; V=6V; R=?$$ $$R=\\frac{V}{I}=\\frac{6}{5}Ω=1.2Ω$$",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -322,12 +322,12 @@
   {
     "id": 21,
     "subject": "Physics",
-    "question": "`yBwU KYvi g‡a¨ gnvKl© e‡ji gvb †Kgb cwieZ©b n‡e hw` GKwU KYvi fi c~‡e©i wØ¸Y, Ab¨ KYvi fi wZb¸Y Kiv nq Ges GKB mv‡_ Zv‡`i gv‡Si `~iZ¡ wØ¸Y Kiv nq?",
+    "question": "দুটি কণার মধ্যে মহাকর্ষ বলের মান কেমন পরিবর্তন হবে যদি একটি কণার ভর পূর্বের দ্বিগুণ, অন্য কণার ভর তিনগুণ করা হয় এবং একই সাথে তাদের মাঝের দূরত্ব দ্বিগুণ করা হয়?",
     "options": {
-      "a": "c~‡e©i †`o¸Y n‡e",
-      "b": "c~‡e©i wØ¸Y n‡e",
-      "c": "c~‡e©i mgvb _vK‡e",
-      "d": "c~‡e©i wZb¸Y n‡e"
+      "a": "পূর্বের দেড়গুণ হবে",
+      "b": "পূর্বের দ্বিগুণ হবে",
+      "c": "পূর্বের সমান থাকবে",
+      "d": "পূর্বের তিনগুণ হবে"
     },
     "correctAnswer": "a",
     "explanation": "$$F∝\\frac{{m}_{1}{m}_{2}}{{d}^{2}}∴ \\frac{F}{F}=\\frac{2m×3m×{d}^{2}}{{(2d)}^{2}×m×m}=1.5$$ $$⇒ F=1.5F$$",
@@ -338,7 +338,7 @@
   {
     "id": 22,
     "subject": "Physics",
-    "question": "$$A→=2i^+3j^ ; B→=4i^+j^$$ n‡j, Ges $$A→+B→=C→$$ n‡j $$C→$$ †f±iwU X A‡ÿi mv‡_ KZ †KvY ˆZwi K‡i?",
+    "question": "$$A→=2i^+3j^ ; B→=4i^+j^$$ হলে, এবং $$A→+B→=C→$$ হলে $$C→$$ ভেক্টরটি X অক্ষের সাথে কত কোণ তৈরি করে?",
     "options": {
       "a": "$${cos}^{−1} (\\frac{6}{\\sqrt{52}})$$",
       "b": "$${cos}^{−1} (\\frac{2}{\\sqrt{13}})$$",
@@ -354,7 +354,7 @@
   {
     "id": 23,
     "subject": "Physics",
-    "question": "†Kv‡bv AceZ©b †MÖwUs‡q cÖwZ wgUv‡i $$4×{10}^{5}$$ m sL¨K †iLv Av‡Q| Gi Dci Av‡jv AvcwZZ n‡j eY©vwj †iLvi 2q µ‡gi Pi‡gi Rb¨ †h AceZ©b †KvY m„wó K‡i [ $$λ=6250 Å$$ a‡i bvI] Zvi gvb-",
+    "question": "কোনো অপবর্তন গ্রেটিংয়ে প্রতি মিটারে $$4×{10}^{5}$$ সংখ্যক রেখা আছে| এর উপর আলো আপতিত হলে বর্ণালি রেখার 2য় ক্রমের চরমের জন্য যে অপবর্তন কোণ সৃষ্টি করে [ $$λ=6250 Å$$ ধরে নাও] তার মান-",
     "options": {
       "a": "$${45}^{o}$$",
       "b": "$${30}^{o}$$",
@@ -386,15 +386,15 @@
   {
     "id": 25,
     "subject": "Physics",
-    "question": "GKwU mgvšÍivj cvZ avi‡Ki cvZØ‡qi ga¨eZ©x ¯’vb evqyi $$(k=1)$$ cwie‡Z© $$k = 20$$ WvB-B‡jKwUªK aªæe‡Ki c`v_© Øviv c~iY Kiv n‡jv, wKš‘ `yB cv‡Z GKB Avavb ivLv n‡j-",
+    "question": "একটি সমান্তরাল পাত ধারকের পাতদ্বয়ের মধ্যবর্তী স্থান বায়ুর $$(k=1)$$ পরিবর্তে $$k = 20$$ ডাই-ইলেকট্রিক ধ্রুবকের পদার্থ দ্বারা পূরণ করা হলো, কিন্তু দুই পাতে একই আধান রাখা হলে-",
     "options": {
-      "a": "ïay wefe cv_©K¨ (cvZØ‡qi) cwiewZ©Z n‡e",
-      "b": "ïay aviKZ¡ cwiewZ©Z n‡e",
-      "c": "DfqB cwiewZ©Z n‡e",
-      "d": "aviKZ¡ I wefe cv_©K¨ Df‡qB AcwiewZ©Z _v‡K"
+      "a": "শুধু বিভব পার্থক্য (পাতদ্বয়ের) পরিবর্তিত হবে",
+      "b": "শুধু ধারকত্ব পরিবর্তিত হবে",
+      "c": "উভয়ই পরিবর্তিত হবে",
+      "d": "ধারকত্ব ও বিভব পার্থক্য উভয়ই অপরিবর্তিত থাকে"
     },
     "correctAnswer": "c",
-    "explanation": "$$k$$ Gi gvb cwieZ©b Ki‡j WvB B‡jKwUªK c`v_© wecixZ w`‡K Zwor †ÿÎ cÖ‡qvM K‡i| myZivs wefe K‡g hvq| $$C= {∈}_{0}\\frac{KA}{d}$$ G‡ÿ‡Î, $$C$$ †e‡o hvq|",
+    "explanation": "$$k$$ এর মান পরিবর্তন করলে ডাই ইলেকট্রিক পদার্থ বিপরীত দিকে তড়িৎ ক্ষেত্র প্রয়োগ করে| সুতরাং বিভব কমে যায়| $$C= {∈}_{0}\\frac{KA}{d}$$ এক্ষেত্রে, $$C$$ বেড়ে যায়|",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -402,7 +402,7 @@
   {
     "id": 26,
     "subject": "Chemistry",
-    "question": "64g Aw·‡Rb GKwU Ave× cv‡Î 600K ZvcgvÎvq 2atm Pvc ˆZwi K‡i| H cv‡Î $$56g {N}_{2}$$ M¨vm KZ ZvcgvÎvq ivL‡j GKB Pvc ˆZwi Ki‡e ?",
+    "question": "64g অক্সিজেন একটি আবদ্ধ পাত্রে 600K তাপমাত্রায় 2atm চাপ তৈরি করে| ঐ পাত্রে $$56g {N}_{2}$$ গ্যাস কত তাপমাত্রায় রাখলে একই চাপ তৈরি করবে ?",
     "options": {
       "a": "200 K",
       "b": "800 K",
@@ -410,7 +410,7 @@
       "d": "600 K"
     },
     "correctAnswer": "d",
-    "explanation": "$${P}_{1}{V}_{1}={n}_{1}R{T}_{1} ;{P}_{2}{V}_{2}={n}_{2}R{T}_{2}$$ $${P}_{1}={P}_{2};{V}_{1}={V}_{2}$$ Ges R aªæeK| $$∴{n}_{1}{T}_{1}={n}_{2}{T}_{2}$$ $$∴\\frac{{w}_{1}}{{M}_{1}}{T}_{1}=\\frac{{w}_{2}}{{M}_{2}}{T}_{2}$$ $$∴{T}_{2}=\\frac{{w}_{1}}{{w}_{2}}×\\frac{{M}_{2}}{{M}_{1}}×{T}_{1}=\\frac{64}{56}×\\frac{28}{32}×600=600K$$ .",
+    "explanation": "$${P}_{1}{V}_{1}={n}_{1}R{T}_{1} ;{P}_{2}{V}_{2}={n}_{2}R{T}_{2}$$ $${P}_{1}={P}_{2};{V}_{1}={V}_{2}$$ এবং R ধ্রুবক| $$∴{n}_{1}{T}_{1}={n}_{2}{T}_{2}$$ $$∴\\frac{{w}_{1}}{{M}_{1}}{T}_{1}=\\frac{{w}_{2}}{{M}_{2}}{T}_{2}$$ $$∴{T}_{2}=\\frac{{w}_{1}}{{w}_{2}}×\\frac{{M}_{2}}{{M}_{1}}×{T}_{1}=\\frac{64}{56}×\\frac{28}{32}×600=600K$$ .",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -418,7 +418,7 @@
   {
     "id": 27,
     "subject": "Chemistry",
-    "question": "mgcwigvY $$pH=3$$ I $$pH=4$$ Gi `ªeY GKwU cv‡Î wgwkÖZ Ki‡j cv‡Î $${H}_{3}{O}^{+}$$ Gi NbgvÎv n‡e-",
+    "question": "সমপরিমাণ $$pH=3$$ ও $$pH=4$$ এর দ্রবণ একটি পাত্রে মিশ্রিত করলে পাত্রে $${H}_{3}{O}^{+}$$ এর ঘনমাত্রা হবে-",
     "options": {
       "a": "$${10}^{−4} mol/L$$",
       "b": "$$5.5×{10}^{−4}mol/L$$",
@@ -426,7 +426,7 @@
       "d": "$$5.5×{10}^{−3}mol/L$$"
     },
     "correctAnswer": "b",
-    "explanation": "awi, V cwigvY K‡i wgwkÖZ Kiv n‡jv, $$∴{10}^{−3}×V+{10}^{−4}×V=S×(V+V)$$ $$⇒\\frac{10×{10}^{−4}+{10}^{−4}}{2}=S ∴S=5.5×{10}^{−4}mol/L$$",
+    "explanation": "ধরি, V পরিমাণ করে মিশ্রিত করা হলো, $$∴{10}^{−3}×V+{10}^{−4}×V=S×(V+V)$$ $$⇒\\frac{10×{10}^{−4}+{10}^{−4}}{2}=S ∴S=5.5×{10}^{−4}mol/L$$",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -434,7 +434,7 @@
   {
     "id": 28,
     "subject": "Chemistry",
-    "question": "†µvwgqvg $$(III)$$ mvj‡dU `ªe‡Y $$0.965$$ A¨vw¤úqvi we`y¨r KZ mgq hve r cÖevwnZ Ki‡j K¨v‡_v‡W $$1.00mol$$ †µvwgqvg mwÂZ n‡e ?",
+    "question": "ক্রোমিয়াম $$(III)$$ সালফেট দ্রবণে $$0.965$$ অ্যাম্পিয়ার বিদ্যুৎ কত সময় ধরে প্রবাহিত করলে ক্যাথোড এ $$1.00mol$$ ক্রোমিয়াম সঞ্চিত হবে ?",
     "options": {
       "a": "4000 min",
       "b": "4800 min",
@@ -450,12 +450,12 @@
   {
     "id": 29,
     "subject": "Chemistry",
-    "question": "GKwU M¨v‡mi e¨vcb nvi Ab¨ GKwU M¨v‡mi wØ¸Y n‡j, cÖ_g M¨vmwUi e¨vwcZ n‡Z wØZxqwUi Zzjbvq-",
+    "question": "একটি গ্যাসের ব্যাপন হার অন্য একটি গ্যাসের দ্বিগুণ হলে, প্রথম গ্যাসটির ব্যাপিত হতে দ্বিতীয়টির তুলনায়-",
     "options": {
-      "a": "$$\\sqrt{2}$$ ¸Y mgq jvM‡e",
-      "b": "A‡a©K mgq jvM‡e",
-      "c": "$$\\frac{1}{\\sqrt{2}}$$ ¸Y mgq jvM‡e",
-      "d": "wØ¸Y mgq jvM‡e"
+      "a": "$$\\sqrt{2}$$ গুণ সময় লাগবে",
+      "b": "অর্ধেক সময় লাগবে",
+      "c": "$$\\frac{1}{\\sqrt{2}}$$ গুণ সময় লাগবে",
+      "d": "দ্বিগুণ সময় লাগবে"
     },
     "correctAnswer": "b",
     "explanation": "$$r∝\\frac{1}{t}⇒\\frac{{t}_{1}}{{t}_{2}}=\\frac{{r}_{2}}{{r}_{1}}=\\frac{1}{2}$$",
@@ -482,7 +482,7 @@
   {
     "id": 31,
     "subject": "Chemistry",
-    "question": "GKwU B‡jKUªb †evi g‡Wj cigvYy‡Z PZz_© kw³¯Íi ev w¯’i Kÿc‡_ GKwU c~Y© AveZ©b Ki‡Z KqwU c~Y© Zi½ m„wó K‡i ?",
+    "question": "একটি ইলেকট্রন বোর মডেলে পরমাণুতে চতুর্থ শক্তিস্থর বা স্থির কক্ষপথে একটি পূর্ণ আবর্তন করতে কয়টি পূর্ণ তরঙ্গ সৃষ্টি করে ?",
     "options": {
       "a": "4",
       "b": "3",
@@ -514,7 +514,7 @@
   {
     "id": 33,
     "subject": "Chemistry",
-    "question": "wRsK kbv³Ki‡Y †KvbwU e¨eüZ nq ?",
+    "question": "জিঙ্ক শনাক্তকরণে কোনটি ব্যবহৃত হয় ?",
     "options": {
       "a": "$${K}_{3}[Na{(CN)}_{6}]$$",
       "b": "$${K}_{3}[Fe{(CN)}_{6}]$$",
@@ -530,12 +530,12 @@
   {
     "id": 34,
     "subject": "Chemistry",
-    "question": "ˆRe †hŠ‡Mi wkK‡j Kve©b msL¨v Kgv‡bv hvq Kxfv‡e ?",
+    "question": "জৈব যৌগের শিকলে কার্বন সংখ্যা কমানো যায় কিভাবে ?",
     "options": {
-      "a": "wK¬‡gb‡mb weRviY wewµqvi gva¨‡g",
-      "b": "BUvW© wewµqvi gva¨‡g",
-      "c": "DU©R wewµqvi gva¨‡g",
-      "d": "ndg¨vb wW‡MÖ‡Wkb wewµqvi gva¨‡g"
+      "a": "ক্লেমেনসেন বিজারণ বিক্রিয়ার মাধ্যমে",
+      "b": "ইটার্ড বিক্রিয়ার মাধ্যমে",
+      "c": "উর্টজ বিক্রিয়ার মাধ্যমে",
+      "d": "হফম্যান ডিগ্রেডেশন বিক্রিয়ার মাধ্যমে"
     },
     "correctAnswer": "d",
     "explanation": "",
@@ -546,7 +546,7 @@
   {
     "id": 35,
     "subject": "Chemistry",
-    "question": "H cigvYyi 1g Kÿc‡_ B‡jKUª‡bi kw³ $${E}_{1}$$ | 3q Kÿc‡_ B‡jKUª‡bi kw³ KZ ?",
+    "question": "H পরমাণুর 1ম কক্ষপথে ইলেকট্রনের শক্তি $${E}_{1}$$ | 3য় কক্ষপথে ইলেকট্রনের শক্তি কত ?",
     "options": {
       "a": "$$9{E}_{1}$$",
       "b": "$${E}_{1}^{3}$$",
@@ -562,7 +562,7 @@
   {
     "id": 36,
     "subject": "Chemistry",
-    "question": "wb‡¤œi †Kvb wewµqvwU RviY-weRviY wewµqvi D`vniY ?",
+    "question": "নিম্নের কোন বিক্রিয়াটি জারন-বিজারণ বিক্রিয়ার উদাহরণ ?",
     "options": {
       "a": "$$CuO+{H}_{2}S{O}_{4}→CuS{O}_{4}+{H}_{2}O$$",
       "b": "$$2S{O}_{2}+{O}_{2}→2S{O}_{3}$$",
@@ -570,7 +570,7 @@
       "d": "$${H}^{+}+O{H}^{−}→{H}_{2}O$$"
     },
     "correctAnswer": "b",
-    "explanation": "$$2S{O}_{2}+{O}_{2}→2S{O}_{3}$$ GB wewµqvq Gi RviY gvb +4 n‡Z +6 G cwiewZ©Z nq|",
+    "explanation": "$$2S{O}_{2}+{O}_{2}→2S{O}_{3}$$ এই বিক্রিয়ায় এর জারন মান +4 হতে +6 এ পরিবর্তিত হয়|",
     "hasDiagram": false,
     "svg_code": "",
     "topic": ""
@@ -594,12 +594,12 @@
   {
     "id": 38,
     "subject": "Chemistry",
-    "question": "cvKv Kjv‡Z †KvbwU we`¨gvb ?",
+    "question": "পাকা কলাতে কোনটি বিদ্যমান ?",
     "options": {
-      "a": "B_vBj weDUvb‡qU",
-      "b": "AKUvBj B_vb‡qU",
-      "c": "†c›UvBj B_vb‡qU",
-      "d": "†ebRvBj B_vb‡qU"
+      "a": "ইথাইল বিউটানয়েট",
+      "b": "অক্টাইল ইথানয়েট",
+      "c": "পেন্টাইল ইথানয়েট",
+      "d": "বেনজাইল ইথানয়েট"
     },
     "correctAnswer": "c",
     "explanation": "",

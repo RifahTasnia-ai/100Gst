@@ -90,25 +90,7 @@
     "questionFile": "GST-Admission-2024-25.json"
   },
   {
-    "studentName": "Opu 2",
-    "answers": {
-      "2": "b",
-      "75": "b",
-      "76": "c",
-      "77": "c",
-      "79": "d"
-    },
-    "score": 1.25,
-    "totalMarks": 100,
-    "timestamp": "2026-02-16T09:56:12.297Z",
-    "attempted": 5,
-    "correct": 2,
-    "wrong": 3,
-    "pass": false,
-    "questionFile": "GST-Model-Test-03.json"
-  },
-  {
-    "studentName": "Opu 2_1",
+    "studentName": "GST-2",
     "answers": {
       "2": "b",
       "3": "b",
