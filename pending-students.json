@@ -1,9 +1,15 @@
 [
   {
     "studentName": "Gst 4",
-    "timestamp": "2026-02-17T16:34:24.639Z",
+    "timestamp": "2026-02-17T17:38:00.381Z",
     "status": "Pending",
     "answers": {
+      "1": "b",
+      "2": "c",
+      "3": "c",
+      "4": "a",
+      "5": "c",
+      "6": "a",
       "20": "b",
       "21": "c",
       "22": "b",
@@ -14,6 +20,15 @@
       "27": "b",
       "28": "b",
       "29": "b",
+      "30": "b",
+      "31": "b",
+      "32": "a",
+      "33": "a",
+      "34": "a",
+      "35": "b",
+      "36": "a",
+      "37": "b",
+      "38": "a",
       "39": "b",
       "40": "c",
       "41": "a",
@@ -71,8 +86,8 @@
       "99": "b",
       "100": "b"
     },
-    "currentQuestion": 30,
-    "answeredCount": 66,
+    "currentQuestion": 7,
+    "answeredCount": 81,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-05.json"
   }
