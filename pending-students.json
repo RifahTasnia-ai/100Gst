@@ -9,10 +9,13 @@
       "77": "c",
       "79": "d",
       "80": "d",
-      "81": "a"
+      "81": "a",
+      "82": "a",
+      "83": "b",
+      "84": "c"
     },
-    "currentQuestion": 82,
-    "answeredCount": 6,
+    "currentQuestion": 85,
+    "answeredCount": 9,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-05.json"
   }
