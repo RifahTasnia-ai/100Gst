@@ -21,10 +21,12 @@
       "93": "b",
       "94": "d",
       "95": "a",
-      "96": "b"
+      "96": "b",
+      "98": "c",
+      "99": "a"
     },
-    "currentQuestion": 98,
-    "answeredCount": 18,
+    "currentQuestion": 100,
+    "answeredCount": 20,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-04.json"
   }
