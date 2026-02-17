@@ -139,5 +139,41 @@
     "wrong": 19,
     "pass": false,
     "questionFile": "GST-Model-Test-03.json"
+  },
+  {
+    "studentName": "Gst-3",
+    "answers": {
+      "53": "d",
+      "54": "a",
+      "76": "a",
+      "77": "b",
+      "78": "c",
+      "79": "b",
+      "80": "d",
+      "82": "d",
+      "83": "a",
+      "84": "b",
+      "85": "c",
+      "88": "a",
+      "89": "a",
+      "90": "d",
+      "91": "c",
+      "92": "d",
+      "93": "b",
+      "94": "d",
+      "95": "a",
+      "96": "b",
+      "98": "c",
+      "99": "a",
+      "100": "d"
+    },
+    "score": 4.25,
+    "totalMarks": 100,
+    "timestamp": "2026-02-17T16:03:06.020Z",
+    "attempted": 23,
+    "correct": 8,
+    "wrong": 15,
+    "pass": false,
+    "questionFile": "GST-Model-Test-04.json"
   }
 ]
