@@ -4,6 +4,7 @@
     "timestamp": "2026-02-17T14:47:12.615Z",
     "status": "Pending",
     "answers": {
+      "53": "d",
       "76": "a",
       "77": "b",
       "78": "c",
@@ -26,8 +27,8 @@
       "99": "a",
       "100": "d"
     },
-    "currentQuestion": 53,
-    "answeredCount": 21,
+    "currentQuestion": 54,
+    "answeredCount": 22,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-04.json"
   }
