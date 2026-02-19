@@ -21,13 +21,6 @@ const NEGATIVE_MARKING = 0.25
 const PASS_MARK = 60.0 // 100 * 1.0 * 0.60
 
 function MCQContainer({ questions, studentName, questionFile = 'questions.json' }) {
-  console.log('MCQContainer rendered:', {
-    hasQuestions: !!questions,
-    isArray: Array.isArray(questions),
-    length: questions?.length,
-    studentName
-  })
-
   // ALL HOOKS MUST BE CALLED BEFORE ANY CONDITIONAL RETURNS
   const [status, setStatus] = useState(STATUS.RUNNING)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -150,7 +143,6 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
 
     // Immediately queue the submission to localStorage for insurance
     const queueId = queueSubmission(payload)
-    console.log('📝 Submission queued locally:', queueId)
 
     // Show result screen immediately
     setStatus(STATUS.SUBMITTED)
@@ -248,7 +240,6 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
           questionFile
         })
           .then(() => {
-            console.log(`${studentName} marked as pending after 1 minute`)
           })
           .catch(err => console.error('Failed to save pending student (1 min):', err))
       }
@@ -263,9 +254,6 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
         totalQuestions: questions.length,
         questionFile
       })
-        .then(() => {
-          console.log(`Heartbeat: ${studentName} synced ${Object.keys(answers).length} answers`)
-        })
         .catch(err => console.error('Failed to send heartbeat:', err))
     }, THIRTY_SECONDS)
 

@@ -22,24 +22,24 @@ Now supports 80 questions!
 ## Features
 - Student starts exam with name/ID (no password)
 - 60 min timer, 80 MCQ
-- Scoring: +1.25 correct, -0.25 wrong, 0 unanswered; Pass ≥ 60.0
+- Scoring: +1.0 correct, -0.25 wrong, 0 unanswered; Pass ≥ 60.0
 - LocalStorage autosave during exam
 - Submit saves to GitHub `answers.json`
 - Admin page lists scores, pass/fail, timestamp, and detailed answers
 
 ## Files
-- `index.html` / `exam.js` / `styles.css` — student exam UI
-- `admin.html` / `admin.js` — admin dashboard
-- `questions.json` — 80 questions in Bengali (Physics, Chemistry, Math)
-- `answers.json` — submissions store (appended by API)
-- `api/save-answer.js` — Vercel function writing to GitHub
+- `src/pages/ExamPage.jsx` + `src/components/*` — student exam UI
+- `src/pages/AdminPage.jsx` + `src/components/admin/*` — teacher/admin dashboard
+- `public/*.json` — question sets
+- `exam-config.json` — active question set config
+- `answers.json` / `pending-students.json` — submission and live exam state
+- `api/*.js` — Vercel/serverless endpoints
 
 ## Run locally
 ```bash
-npm install # only if you add tooling; static files otherwise
-npm run dev # if using a dev server; else open index.html
+npm install
+npm run dev
 ```
-Use any static server, e.g. `npx serve .`
 
 ## Deploy to Vercel
 1) Push this repo to GitHub.  
@@ -50,8 +50,15 @@ GITHUB_OWNER=<your-github-username-or-org>
 GITHUB_REPO=<repo-name>
 GITHUB_BRANCH=main          # optional, defaults to main
 GITHUB_TOKEN=<PAT with repo scope>
+ADMIN_API_KEY=<optional: protects delete/config endpoints>
 ```
-4) Deploy. Student page: `/`. Admin page: `/admin.html`.
+4) Deploy. Student page: `/`. Admin page: `/admin`.
+
+Optional frontend envs:
+```
+VITE_TEACHER_PIN=<optional: lock admin page UI>
+VITE_ADMIN_API_KEY=<optional: send x-admin-key header from frontend>
+```
 
 ## GitHub JSON notes
 - `questions.json`: contains 50 questions in Bengali covering multiple science topics.
@@ -78,11 +85,11 @@ GITHUB_TOKEN=<PAT with repo scope>
 - Currently reads `answers.json` from the same repo path. If hosting elsewhere, set the URL in `admin.js` (`RESULTS_URL`).
 
 ## Customization
-- Update branding/texts in `index.html` and `admin.html`.
-- Styling in `styles.css`.
+- Update branding/texts in React components under `src/`.
+- Styling in `src/index.css` and component CSS files.
 - Adjust scoring/timer in `src/components/MCQContainer.jsx` (`MARK_PER_QUESTION`, `NEGATIVE_MARKING`, `DURATION_SECONDS`, `PASS_MARK`).
 
 ## Known limitations
-- No authentication; admin page is open via URL.
+- By default there is no auth unless you set `VITE_TEACHER_PIN` and/or `ADMIN_API_KEY`.
 - GitHub write is append-only; no concurrency lock. For heavy traffic, consider a DB.
 

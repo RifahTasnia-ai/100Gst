@@ -1,6 +1,47 @@
+import { Buffer } from 'buffer'
+import fs from 'fs/promises'
+import path from 'path'
+
+const OWNER = process.env.GITHUB_OWNER || 'maruf7705'
+const REPO = process.env.GITHUB_REPO || '100GST'
+const BRANCH = process.env.GITHUB_BRANCH || 'main'
+const TOKEN = process.env.GITHUB_TOKEN
+
+async function validateQuestionFileLocally(fileName) {
+    const filePath = path.join(process.cwd(), 'public', fileName)
+    const content = await fs.readFile(filePath, 'utf-8')
+    const questions = JSON.parse(content)
+    if (!Array.isArray(questions)) {
+        throw new Error('Invalid question file format - must be an array')
+    }
+    if (questions.length === 0) {
+        throw new Error('Question file is empty')
+    }
+}
+
+async function validateQuestionFileRemote(fileName) {
+    const fileUrl = `https://raw.githubusercontent.com/${OWNER}/${REPO}/${BRANCH}/public/${encodeURIComponent(fileName)}`
+    const fileResponse = await fetch(fileUrl, { cache: 'no-store' })
+    if (!fileResponse.ok) {
+        throw new Error('Question file not found')
+    }
+    const questions = await fileResponse.json()
+    if (!Array.isArray(questions)) {
+        throw new Error('Invalid question file format - must be an array')
+    }
+    if (questions.length === 0) {
+        throw new Error('Question file is empty')
+    }
+}
+
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Method not allowed' })
+    }
+
+    const adminKey = process.env.ADMIN_API_KEY
+    if (adminKey && req.headers['x-admin-key'] !== adminKey) {
+        return res.status(401).json({ error: 'Unauthorized' })
     }
 
     try {
@@ -16,38 +57,20 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: 'File must be a JSON file' })
         }
 
-        const isDev = !process.env.VERCEL
-
-        // Check if file exists
-        const fileUrl = isDev
-            ? `/${fileName}`
-            : `https://${req.headers.host}/${fileName}`
+        const isDev = !process.env.VERCEL_ENV
 
         try {
-            const fileResponse = await fetch(fileUrl, { method: 'HEAD', cache: 'no-store' })
-
-            if (!fileResponse.ok) {
-                return res.status(404).json({ error: 'Question file not found' })
-            }
-        } catch (error) {
-            return res.status(404).json({ error: 'Question file not found', details: error.message })
-        }
-
-        // Validate that it's a valid JSON file
-        try {
-            const fileContent = await fetch(fileUrl, { cache: 'no-store' })
-            const questions = await fileContent.json()
-
-            // Basic validation - should be an array
-            if (!Array.isArray(questions)) {
-                return res.status(400).json({ error: 'Invalid question file format - must be an array' })
-            }
-
-            if (questions.length === 0) {
-                return res.status(400).json({ error: 'Question file is empty' })
+            if (isDev) {
+                await validateQuestionFileLocally(fileName)
+            } else {
+                await validateQuestionFileRemote(fileName)
             }
         } catch (parseError) {
-            return res.status(400).json({ error: 'Invalid JSON file' })
+            const message = parseError?.message || 'Invalid JSON file'
+            if (message.includes('not found')) {
+                return res.status(404).json({ error: message })
+            }
+            return res.status(400).json({ error: message })
         }
 
         // Create config object
@@ -56,13 +79,8 @@ export default async function handler(req, res) {
             lastUpdated: new Date().toISOString()
         }
 
-        // On Vercel, we need to update the file in GitHub
-        // For now, we'll use environment variable for GitHub token
         if (!isDev) {
-            const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-            const GITHUB_REPO = process.env.GITHUB_REPO ? (process.env.GITHUB_OWNER ? `${process.env.GITHUB_OWNER}/${process.env.GITHUB_REPO}` : process.env.GITHUB_REPO) : 'maruf7705/100GST'
-
-            if (!GITHUB_TOKEN) {
+            if (!TOKEN) {
                 return res.status(500).json({
                     error: 'GitHub token not configured',
                     note: 'Please set GITHUB_TOKEN in Vercel environment variables'
@@ -70,11 +88,10 @@ export default async function handler(req, res) {
             }
 
             try {
-                // Get current file SHA (needed for updating)
-                const getFileUrl = `https://api.github.com/repos/${GITHUB_REPO}/contents/exam-config.json`
+                const getFileUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/exam-config.json`
                 const getResponse = await fetch(getFileUrl, {
                     headers: {
-                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json'
                     }
                 })
@@ -85,13 +102,12 @@ export default async function handler(req, res) {
                     sha = fileData.sha
                 }
 
-                // Update the file
                 const content = Buffer.from(JSON.stringify(config, null, 2)).toString('base64')
 
                 const updateResponse = await fetch(getFileUrl, {
                     method: 'PUT',
                     headers: {
-                        'Authorization': `Bearer ${GITHUB_TOKEN}`,
+                        'Authorization': `Bearer ${TOKEN}`,
                         'Accept': 'application/vnd.github.v3+json',
                         'Content-Type': 'application/json'
                     },
@@ -99,7 +115,7 @@ export default async function handler(req, res) {
                         message: `Update active question file to ${fileName}`,
                         content: content,
                         sha: sha,
-                        branch: 'main'
+                        branch: BRANCH
                     })
                 })
 
@@ -115,11 +131,8 @@ export default async function handler(req, res) {
                 })
             }
         } else {
-            // Local development - write to filesystem
-            const fs = require('fs')
-            const path = require('path')
             const configPath = path.join(process.cwd(), 'exam-config.json')
-            fs.writeFileSync(configPath, JSON.stringify(config, null, 2), 'utf-8')
+            await fs.writeFile(configPath, JSON.stringify(config, null, 2), 'utf-8')
         }
 
         return res.status(200).json({

@@ -32,14 +32,12 @@ function ExamPage() {
       const cacheBuster = `?t=${Date.now()}`
       const fileUrl = `/${file}${cacheBuster}`
 
-      console.log(`Loading questions from ${fileUrl}`)
       const res = await fetch(fileUrl, {
         cache: 'no-store',
         headers: {
           'Cache-Control': 'no-cache, no-store, must-revalidate'
         }
       })
-      console.log('Fetch response:', { status: res.status, ok: res.ok, contentType: res.headers.get('content-type') })
 
       if (!res.ok) {
         throw new Error(`Failed to load questions: ${res.status} ${res.statusText}`)
@@ -52,7 +50,6 @@ function ExamPage() {
       }
 
       const data = await res.json()
-      console.log('Loaded questions data:', { isArray: Array.isArray(data), count: data?.length })
 
       // Validate data
       if (!Array.isArray(data) || data.length === 0) {
@@ -71,9 +68,6 @@ function ExamPage() {
         subject: q.subject || ''
       }))
 
-      console.log('Transformed questions:', { count: transformed.length, firstQuestion: transformed[0] })
-
-      // Validate transformed questions
       if (transformed.length === 0) {
         throw new Error('No valid questions found after processing')
       }
@@ -139,13 +133,6 @@ function ExamPage() {
       setStudentName(name)
     }} />
   }
-
-  console.log('ExamPage rendering MCQContainer:', {
-    studentName,
-    questionsCount: questions.length,
-    loading,
-    error
-  })
 
   return (
     <ErrorBoundary>

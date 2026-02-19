@@ -1,3 +1,20 @@
+const LOCAL_ACTIVE_FILE_KEY = 'local_active_question_file'
+const ADMIN_API_KEY_STORAGE = 'teacher_admin_api_key'
+const ADMIN_API_KEY_ENV = import.meta.env.VITE_ADMIN_API_KEY || ''
+
+function getAdminApiKey() {
+  return localStorage.getItem(ADMIN_API_KEY_STORAGE) || ADMIN_API_KEY_ENV
+}
+
+function withAdminHeaders(baseHeaders = {}) {
+  const adminKey = getAdminApiKey()
+  if (!adminKey) return baseHeaders
+  return {
+    ...baseHeaders,
+    'x-admin-key': adminKey,
+  }
+}
+
 export async function saveSubmission(payload) {
   let res;
   try {
@@ -24,7 +41,7 @@ export async function deleteSubmission(studentName, timestamp) {
   try {
     res = await fetch('/api/delete-answer', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: withAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ studentName, timestamp })
     })
   } catch (fetchErr) {
@@ -44,7 +61,7 @@ export async function deleteStudent(studentName) {
   try {
     res = await fetch('/api/delete-student', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: withAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ studentName })
     })
   } catch (fetchErr) {
@@ -79,28 +96,20 @@ export async function loadSubmissions() {
 }
 
 export async function loadLatestQuestions() {
-  // Try to find the latest question file by checking in descending order
-  // Try questions-100.json down to questions-1.json, then questions.json
-
   for (let version = 100; version >= 1; version--) {
     const fileName = `questions-${version}.json`
     try {
       const res = await fetch(`/${fileName}`)
       if (res.ok) {
-        // Try to parse as JSON to verify it's a valid file
         const text = await res.text()
-        JSON.parse(text) // This will throw if it's not valid JSON (like HTML)
-        console.log(`Found latest questions file: ${fileName}`)
+        JSON.parse(text)
         return { file: fileName, version }
       }
     } catch (error) {
-      // File doesn't exist or is not valid JSON, continue to next
       continue
     }
   }
 
-  // Fallback to questions.json
-  console.log('Using default questions.json')
   return { file: 'questions.json', version: 0 }
 }
 
@@ -191,13 +200,9 @@ export async function loadQuestionFiles() {
 }
 
 export async function getActiveQuestionFile() {
-  // If running on localhost without Vercel functions, fall back to default
-  if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-    // Try to fetch active file from localStorage or exam-config.json if possible, 
-    // otherwise default to questions.json
-    console.warn('Running locally, skipping API call for active file')
-    return { activeFile: 'GST-Admission-2024-25.json' }
-    // Defaulting to the new file since that's what we want to test
+  const localOverride = localStorage.getItem(LOCAL_ACTIVE_FILE_KEY)
+  if (localOverride) {
+    return { activeFile: localOverride, source: 'local-override' }
   }
 
   let res;
@@ -206,14 +211,21 @@ export async function getActiveQuestionFile() {
       cache: 'no-store'
     })
   } catch (fetchErr) {
-    console.warn('API fetch failed, using default', fetchErr)
-    return { activeFile: 'questions.json' }
+    try {
+      const configRes = await fetch('/exam-config.json', { cache: 'no-store' })
+      if (configRes.ok) {
+        const config = await configRes.json()
+        if (config?.activeQuestionFile) {
+          return { activeFile: config.activeQuestionFile, source: 'exam-config' }
+        }
+      }
+    } catch (_) {
+      // ignore and use default below
+    }
+    return { activeFile: 'questions.json', source: 'default' }
   }
 
   if (!res.ok) {
-    const text = await res.text().catch(() => 'Could not read error')
-    // If 404 or other error, fallback
-    console.warn(`Failed to get active question file: ${res.status}, using default`)
     return { activeFile: 'questions.json' }
   }
 
@@ -221,30 +233,46 @@ export async function getActiveQuestionFile() {
     const data = await res.json()
     return data
   } catch (e) {
-    // If response is not JSON (e.g. source code "export default"), fallback
-    console.warn('API returned invalid JSON, using default', e)
-    return { activeFile: 'questions.json' }
+    return { activeFile: 'questions.json', source: 'default' }
   }
 }
 
 export async function setActiveQuestionFile(fileName) {
+  const isLocalhost = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'
   let res;
   try {
     res = await fetch('/api/set-active-question-file', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: withAdminHeaders({ 'Content-Type': 'application/json' }),
       body: JSON.stringify({ fileName })
     })
   } catch (fetchErr) {
+    if (isLocalhost) {
+      localStorage.setItem(LOCAL_ACTIVE_FILE_KEY, fileName)
+      return { success: true, activeFile: fileName, localOnly: true }
+    }
     throw fetchErr;
   }
 
   if (!res.ok) {
+    if (isLocalhost) {
+      localStorage.setItem(LOCAL_ACTIVE_FILE_KEY, fileName)
+      return { success: true, activeFile: fileName, localOnly: true }
+    }
     const text = await res.text()
     throw new Error(text || 'Failed to set active question file')
   }
 
+  localStorage.setItem(LOCAL_ACTIVE_FILE_KEY, fileName)
   return res.json()
+}
+
+export function setAdminApiKey(apiKey) {
+  if (!apiKey) {
+    localStorage.removeItem(ADMIN_API_KEY_STORAGE)
+    return
+  }
+  localStorage.setItem(ADMIN_API_KEY_STORAGE, apiKey)
 }
 
 
