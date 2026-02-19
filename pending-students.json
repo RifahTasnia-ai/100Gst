@@ -18,6 +18,7 @@
       "61": "c",
       "62": "c",
       "63": "a",
+      "64": "d",
       "75": "c",
       "76": "c",
       "77": "d",
@@ -45,8 +46,8 @@
       "99": "b",
       "100": "d"
     },
-    "currentQuestion": 63,
-    "answeredCount": 40,
+    "currentQuestion": 66,
+    "answeredCount": 41,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-06.json"
   }
