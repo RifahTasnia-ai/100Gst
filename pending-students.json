@@ -5,6 +5,8 @@
     "status": "Pending",
     "answers": {
       "1": "b",
+      "2": "b",
+      "3": "a",
       "25": "a",
       "26": "b",
       "27": "c",
@@ -79,8 +81,8 @@
       "99": "b",
       "100": "d"
     },
-    "currentQuestion": 2,
-    "answeredCount": 74,
+    "currentQuestion": 4,
+    "answeredCount": 76,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-06.json"
   }
