@@ -1,12 +1,1 @@
-[
-  {
-    "studentName": "test",
-    "timestamp": "2026-02-19T06:03:52.048Z",
-    "status": "Pending",
-    "answers": {},
-    "currentQuestion": 1,
-    "answeredCount": 0,
-    "totalQuestions": 100,
-    "questionFile": "GST-Model-Test-05.json"
-  }
-]
+[]
