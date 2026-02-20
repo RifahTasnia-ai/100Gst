@@ -39,10 +39,14 @@
       "141": "c",
       "142": "a",
       "143": "a",
-      "151": "c"
+      "145": "b",
+      "149": "b",
+      "150": "a",
+      "151": "c",
+      "152": "a"
     },
-    "currentQuestion": 52,
-    "answeredCount": 36,
+    "currentQuestion": 53,
+    "answeredCount": 40,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-07.json"
   }
