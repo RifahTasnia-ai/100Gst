@@ -7,10 +7,11 @@
       "175": "a",
       "176": "b",
       "178": "b",
-      "179": "b"
+      "179": "b",
+      "180": "b"
     },
-    "currentQuestion": 80,
-    "answeredCount": 4,
+    "currentQuestion": 81,
+    "answeredCount": 5,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-07.json"
   }
