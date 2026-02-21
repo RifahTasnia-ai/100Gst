@@ -11,9 +11,8 @@ function QuestionCard({
   onNext,
   canGoPrev,
   canGoNext,
-  isMarked,
-  onToggleMark,
-  onSubmit
+  onSubmit,
+  onExit
 }) {
   const swipeHandlers = useSwipe(
     () => canGoNext && onNext(),
@@ -29,7 +28,6 @@ function QuestionCard({
     >
       <div className="question-header">
         <span className="question-badge bengali">প্রশ্ন {questionNumber}</span>
-        {isMarked && <span className="review-badge bengali">রিভিউ</span>}
       </div>
 
       <div className="question-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(question.question) }} />
@@ -56,13 +54,14 @@ function QuestionCard({
       </div>
 
       <div className="question-actions">
+        {/* Exit button — replaces the old Review button */}
         <button
-          className="action-btn secondary"
-          onClick={onToggleMark}
+          className="action-btn exit-btn"
+          onClick={onExit}
         >
-          {isMarked ? '✓ ' : ''}
-          <span className="bengali">রিভিউ</span>
+          <span className="bengali">✕ বের হন</span>
         </button>
+
         <div className="nav-buttons">
           <button
             className="action-btn"
@@ -93,5 +92,3 @@ function QuestionCard({
 }
 
 export default QuestionCard
-
-

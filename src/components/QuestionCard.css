@@ -201,6 +201,25 @@
   transform: scale(0.97);
 }
 
+/* ─── Exit Button ─── */
+.action-btn.exit-btn {
+  background: white;
+  color: #dc2626;
+  border: 1.5px solid #fca5a5;
+  font-weight: 700;
+}
+
+.action-btn.exit-btn:hover {
+  background: #fef2f2;
+  border-color: #dc2626;
+  color: #b91c1c;
+}
+
+.action-btn.exit-btn:active {
+  background: #fee2e2;
+  transform: scale(0.97);
+}
+
 .action-btn.primary {
   background: var(--primary);
   color: white;

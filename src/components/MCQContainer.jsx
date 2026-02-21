@@ -28,8 +28,8 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
   const [answers, setAnswers] = useState({})
   const [visitedQuestions, setVisitedQuestions] = useState(new Set([0]))
   const [timeLeft, setTimeLeft] = useState(DURATION_SECONDS)
-  const [markedForReview, setMarkedForReview] = useState(new Set())
-  // WK-4 fix: useRef instead of useState so guard works reliably across re-renders without triggering new effects
+  const [showExitConfirm, setShowExitConfirm] = useState(false)
+  // WK-4 fix: useRef instead of useState so guard works reliably across re-renders
   const pendingSentRef = useRef(false)
   const [submissionStatus, setSubmissionStatus] = useState({ status: 'idle', retryCount: 0 })
 
@@ -189,8 +189,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       timeLeft: timeLeftRef.current,
       // CRITICAL: always persist the real start time so tab-switching can't cheat the timer
       examStartTime: examStartTimeRef.current,
-      visited: Array.from(visitedQuestions),
-      marked: Array.from(markedForReview)
+      visited: Array.from(visitedQuestions)
     }
 
     if (now - lastSaveRef.current >= SAVE_THROTTLE_MS) {
@@ -204,7 +203,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
         lastSaveRef.current = Date.now()
       }, SAVE_THROTTLE_MS)
     }
-  }, [answers, currentQuestionIndex, visitedQuestions, markedForReview, status, studentName])
+  }, [answers, currentQuestionIndex, visitedQuestions, status, studentName])
 
   // All useEffect hooks must be called before any returns
   useEffect(() => {
@@ -443,6 +442,10 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     )
   }
 
+  const handleExit = useCallback(() => {
+    setShowExitConfirm(true)
+  }, [])
+
   try {
     return (
       <div className="mcq-container">
@@ -462,9 +465,8 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
               onNext={handleNext}
               canGoPrev={safeIndex > 0}
               canGoNext={safeIndex < questions.length - 1}
-              isMarked={markedForReview.has(safeIndex)}
-              onToggleMark={toggleMarkForReview}
               onSubmit={handleSubmit}
+              onExit={handleExit}
             />
           </div>
           <QuestionNavigator
@@ -473,12 +475,64 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
             answers={answers}
             questions={questions}
             visitedQuestions={visitedQuestions}
-            markedQuestions={markedForReview}
             onQuestionJump={handleQuestionJump}
           />
         </div>
 
         <SubmissionStatus {...submissionStatus} />
+
+        {/* Exit Confirm Popup */}
+        {showExitConfirm && (
+          <div
+            style={{
+              position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.55)',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              zIndex: 1000, padding: '20px'
+            }}
+            onClick={() => setShowExitConfirm(false)}
+          >
+            <div
+              style={{
+                background: 'white', borderRadius: '16px', padding: '32px 28px',
+                maxWidth: '360px', width: '100%', textAlign: 'center',
+                boxShadow: '0 20px 60px rgba(0,0,0,0.3)'
+              }}
+              onClick={e => e.stopPropagation()}
+            >
+              <div style={{ fontSize: '40px', marginBottom: '12px' }}>⚠️</div>
+              <h3 className="bengali" style={{ fontSize: '1.2rem', fontWeight: '700', marginBottom: '10px', color: '#1e293b' }}>
+                পরীক্ষা থেকে বের হবেন?
+              </h3>
+              <p className="bengali" style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: '1.6', marginBottom: '24px' }}>
+                এখন পর্যন্ত যতটুকু উত্তর দিয়েছেন সেটা সাবমিট হয়ে যাবে।
+              </p>
+              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
+                <button
+                  className="bengali"
+                  onClick={() => setShowExitConfirm(false)}
+                  style={{
+                    flex: 1, padding: '12px', border: '1.5px solid #e2e8f0',
+                    borderRadius: '10px', background: 'white', color: '#475569',
+                    fontWeight: '600', fontSize: '1rem', cursor: 'pointer'
+                  }}
+                >
+                  না, থাকব
+                </button>
+                <button
+                  className="bengali"
+                  onClick={() => { setShowExitConfirm(false); handleSubmit() }}
+                  style={{
+                    flex: 1, padding: '12px', border: 'none',
+                    borderRadius: '10px', background: '#dc2626', color: 'white',
+                    fontWeight: '700', fontSize: '1rem', cursor: 'pointer'
+                  }}
+                >
+                  হ্যাঁ, সাবমিট
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     )
   } catch (error) {
