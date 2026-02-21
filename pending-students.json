@@ -3,9 +3,17 @@
     "studentName": "Maruf Test",
     "timestamp": "2026-02-21T11:09:01.397Z",
     "status": "Pending",
-    "answers": {},
-    "currentQuestion": 4,
-    "answeredCount": 0,
+    "answers": {
+      "129": "c",
+      "131": "c",
+      "140": "c",
+      "142": "c",
+      "145": "b",
+      "149": "b",
+      "150": "b"
+    },
+    "currentQuestion": 50,
+    "answeredCount": 7,
     "totalQuestions": 100,
     "questionFile": "GST-Model-Test-07.json"
   }
