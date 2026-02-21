@@ -3,7 +3,6 @@ import './QuestionNavigator.css'
 
 const STATUS_LABELS = {
   active: 'সক্রিয়',
-  marked: 'রিভিউ',
   answered: 'উত্তর দেওয়া',
   visited: 'দেখা হয়েছে',
   unvisited: 'অদেখা'
@@ -13,7 +12,6 @@ const LEGEND_ITEMS = [
   { key: 'unvisited', label: 'অদেখা' },
   { key: 'visited', label: 'দেখা' },
   { key: 'answered', label: 'উত্তর' },
-  { key: 'marked', label: 'রিভিউ' },
 ]
 
 /* ────────────────────────────────────────────
@@ -88,7 +86,6 @@ function QuestionNavigatorInner({
   answers,
   questions,
   visitedQuestions,
-  markedQuestions,
   onQuestionJump
 }) {
   const [sheetOpen, setSheetOpen] = useState(false)
@@ -134,13 +131,12 @@ function QuestionNavigatorInner({
     if (!question) return 'unvisited'
     const hasAnswer = answers[question.id] !== undefined
     const isVisited = visitedQuestions.has(index)
-    const isMarked = markedQuestions.has(index)
+
     if (index === currentIndex) return 'active'
-    if (isMarked) return 'marked'
     if (hasAnswer) return 'answered'
     if (isVisited) return 'visited'
     return 'unvisited'
-  }, [questions, answers, visitedQuestions, markedQuestions, currentIndex])
+  }, [questions, answers, visitedQuestions, currentIndex])
 
   const answeredCount = useMemo(() => {
     if (!questions) return 0
@@ -312,7 +308,6 @@ const QuestionNavigator = memo(QuestionNavigatorInner, (prev, next) => {
     prev.currentIndex === next.currentIndex &&
     prev.answers === next.answers &&
     prev.visitedQuestions === next.visitedQuestions &&
-    prev.markedQuestions === next.markedQuestions &&
     prev.onQuestionJump === next.onQuestionJump
   )
 })

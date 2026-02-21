@@ -205,6 +205,10 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     }
   }, [answers, currentQuestionIndex, visitedQuestions, status, studentName])
 
+  const handleExit = useCallback(() => {
+    setShowExitConfirm(true)
+  }, [])
+
   // All useEffect hooks must be called before any returns
   useEffect(() => {
     if (!questions || questions.length === 0) return
@@ -441,10 +445,6 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       </div>
     )
   }
-
-  const handleExit = useCallback(() => {
-    setShowExitConfirm(true)
-  }, [])
 
   try {
     return (
