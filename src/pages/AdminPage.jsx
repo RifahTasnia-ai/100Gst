@@ -3,6 +3,7 @@ import { loadSubmissions, deleteSubmission, deleteStudent, loadPendingStudents, 
 import SubmissionsTable from '../components/admin/SubmissionsTable'
 import NotificationToast from '../components/admin/NotificationToast'
 import QuestionSetModal from '../components/admin/QuestionSetModal'
+import VideoManageModal from '../components/admin/VideoManageModal'
 import './AdminPage.css'
 
 function AdminPage() {
@@ -17,6 +18,7 @@ function AdminPage() {
   const [notification, setNotification] = useState(null)
   const [currentPage, setCurrentPage] = useState(1)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
+  const [showVideoModal, setShowVideoModal] = useState(false)
   const loadDataRef = useRef(null)
   const itemsPerPage = 7
 
@@ -238,20 +240,21 @@ function AdminPage() {
     return { total, passed, failed, avgScore }
   }, [submissionsByStudent])
 
-  if (error) {
-    return (
-      <div className="admin-page">
-        <div className="error-state">
-          <h2 className="bengali">লোড করতে সমস্যা হয়েছে</h2>
-          <p>{error}</p>
-          <button onClick={loadData} className="export-button">আবার চেষ্টা করুন</button>
-        </div>
-      </div>
-    )
-  }
+  // NOTE: error is now shown as an inline banner instead of blocking the entire UI
 
   return (
     <div className="admin-page">
+      {/* Error banner — non-blocking, dismissible */}
+      {error && (
+        <div className="admin-error-banner">
+          <span className="bengali">⚠️ ডেটা লোড সমস্যা: {error}</span>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button onClick={loadData} className="admin-error-retry bengali">আবার চেষ্টা</button>
+            <button onClick={() => setError(null)} className="admin-error-dismiss">✕</button>
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="admin-header">
         <h1 className="bengali">শিক্ষার্থী ডাটাবেস</h1>
@@ -273,6 +276,17 @@ function AdminPage() {
             disabled={loading}
           >
             ↻
+          </button>
+          <button
+            className="icon-button"
+            onClick={() => setShowVideoModal(true)}
+            title="ভিডিও ম্যানেজমেন্ট"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"
+              width="20" height="20">
+              <polygon points="23 7 16 12 23 17 23 7" />
+              <rect x="1" y="5" width="15" height="14" rx="2" ry="2" />
+            </svg>
           </button>
           <button
             className="icon-button"
@@ -334,6 +348,11 @@ function AdminPage() {
           type={notification.type}
           onClose={() => setNotification(null)}
         />
+      )}
+
+      {/* Video Management Modal */}
+      {showVideoModal && (
+        <VideoManageModal onClose={() => setShowVideoModal(false)} />
       )}
 
       {/* Question Set Settings Modal */}

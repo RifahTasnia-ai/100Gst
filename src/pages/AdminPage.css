@@ -3,6 +3,50 @@
   padding: 0;
 }
 
+/* Non-blocking API error banner */
+.admin-error-banner {
+  background: #fef3c7;
+  border-bottom: 2px solid #f59e0b;
+  padding: 10px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  font-size: 13px;
+  color: #92400e;
+  flex-wrap: wrap;
+}
+
+.admin-error-retry {
+  padding: 5px 14px;
+  background: #f59e0b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.admin-error-retry:hover {
+  background: #d97706;
+}
+
+.admin-error-dismiss {
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 6px;
+  color: #92400e;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Modern Header */
 .admin-header {
   background: white;
