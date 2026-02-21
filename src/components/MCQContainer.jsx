@@ -307,12 +307,13 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     }
   }, [currentQuestionIndex, questions])
 
-  // Track pending students - First after 1 minute (registered with Spectre), then heartbeat every 30s
+  // Track pending students - First after 1 minute (registered with Spectre), then heartbeat every 2 min
+  // 2 min interval = 4x fewer Vercel invocations vs 30s (saves monthly quota)
   useEffect(() => {
     if (status !== STATUS.RUNNING) return
 
     const ONE_MINUTE = 1 * 60 * 1000
-    const THIRTY_SECONDS = 30 * 1000
+    const TWO_MINUTES = 2 * 60 * 1000
 
     // 1. Initial trigger after 1 minute — register student with Spectre
     const initialTimer = setTimeout(() => {
@@ -346,7 +347,8 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       }
     }, ONE_MINUTE)
 
-    // 2. Heartbeat every 30 seconds (syncs answers for Spectre live view)
+    // 2. Heartbeat every 2 minutes (syncs answers for Spectre live view)
+    // Was 30s → now 2min: saves ~75% Vercel function calls per exam
     const heartbeatInterval = setInterval(() => {
       savePendingStudent(studentName, null, {
         answers,
@@ -356,7 +358,7 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
         questionFile
       })
         .catch(err => console.error('Failed to send heartbeat:', err))
-    }, THIRTY_SECONDS)
+    }, TWO_MINUTES)
 
     return () => {
       clearTimeout(initialTimer)

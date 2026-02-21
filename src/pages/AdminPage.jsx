@@ -19,6 +19,10 @@ function AdminPage() {
   const [currentPage, setCurrentPage] = useState(1)
   const [showSettingsModal, setShowSettingsModal] = useState(false)
   const [showVideoModal, setShowVideoModal] = useState(false)
+  const [nextRefreshIn, setNextRefreshIn] = useState(60)
+  const [githubLimits, setGithubLimits] = useState(null)
+  const [showLimits, setShowLimits] = useState(false)
+  const [limitsLoading, setLimitsLoading] = useState(false)
   const loadDataRef = useRef(null)
   const itemsPerPage = 7
 
@@ -35,18 +39,28 @@ function AdminPage() {
 
   useEffect(() => {
     if (!autoRefresh) return
-    const interval = setInterval(() => { loadData() }, 30000)
+    // 60s interval = 2x fewer Vercel calls vs 30s
+    const REFRESH_INTERVAL = 60
+    setNextRefreshIn(REFRESH_INTERVAL)
+    const interval = setInterval(() => { loadData() }, REFRESH_INTERVAL * 1000)
+
+    // Countdown ticker
+    const ticker = setInterval(() => {
+      setNextRefreshIn(prev => (prev <= 1 ? REFRESH_INTERVAL : prev - 1))
+    }, 1000)
 
     // Fix WK-2: When admin tab comes back to foreground, refresh immediately
     const onVisibilityChange = () => {
       if (document.visibilityState === 'visible') {
         loadDataRef.current?.()
+        setNextRefreshIn(REFRESH_INTERVAL)
       }
     }
     document.addEventListener('visibilitychange', onVisibilityChange)
 
     return () => {
       clearInterval(interval)
+      clearInterval(ticker)
       document.removeEventListener('visibilitychange', onVisibilityChange)
     }
   }, [autoRefresh])
@@ -62,11 +76,37 @@ function AdminPage() {
       setPendingStudents(pendingData)
       setError(null)
       setLastRefresh(new Date())
+      setNextRefreshIn(60)
     } catch (err) {
       setError(err.message)
       console.error('Failed to load data', err)
     } finally {
       setLoading(false)
+    }
+  }
+
+  // Client-side GitHub rate limit check — NO Vercel function invoked
+  async function checkGithubLimits() {
+    setLimitsLoading(true)
+    setShowLimits(true)
+    try {
+      // Try to get token from env (Vite exposes VITE_ prefixed vars)
+      const headers = { Accept: 'application/vnd.github+json' }
+      const res = await fetch('https://api.github.com/rate_limit', { headers })
+      if (!res.ok) throw new Error('GitHub API error: ' + res.status)
+      const data = await res.json()
+      const core = data.rate
+      setGithubLimits({
+        limit: core.limit,
+        remaining: core.remaining,
+        used: core.used,
+        resetAt: new Date(core.reset * 1000).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' }),
+        pct: Math.round((core.used / core.limit) * 100)
+      })
+    } catch (err) {
+      setGithubLimits({ error: err.message })
+    } finally {
+      setLimitsLoading(false)
     }
   }
 
@@ -262,13 +302,18 @@ function AdminPage() {
           <div className="stats-badge bengali">
             মোট: <strong>{stats.total}</strong>
           </div>
+
+          {/* Auto-refresh toggle + countdown */}
           <button
             className={`icon-button ${autoRefresh ? 'active' : ''}`}
             onClick={() => setAutoRefresh(!autoRefresh)}
-            title={autoRefresh ? 'অটো রিফ্রেশ চালু' : 'অটো রিফ্রেশ বন্ধ'}
+            title={autoRefresh ? `অটো রিফ্রেশ চালু (${nextRefreshIn}s)` : 'অটো রিফ্রেশ বন্ধ'}
+            style={{ position: 'relative', flexDirection: 'column', fontSize: '0.7rem', gap: '1px', paddingTop: '4px' }}
           >
             🔄
+            {autoRefresh && <span style={{ fontSize: '0.6rem', lineHeight: 1, opacity: 0.85 }}>{nextRefreshIn}s</span>}
           </button>
+
           <button
             className="icon-button"
             onClick={loadData}
@@ -277,6 +322,59 @@ function AdminPage() {
           >
             ↻
           </button>
+
+          {/* GitHub rate limit checker — client-side, no Vercel call */}
+          <div style={{ position: 'relative' }}>
+            <button
+              className="icon-button"
+              onClick={checkGithubLimits}
+              title="GitHub API Rate Limit চেক করুন"
+              style={{ fontSize: '1rem' }}
+            >
+              📊
+            </button>
+            {showLimits && (
+              <div className="limits-popup" onClick={(e) => e.stopPropagation()}>
+                <div className="limits-popup-header">
+                  <span>⚡ GitHub Rate Limit</span>
+                  <button className="limits-close" onClick={() => setShowLimits(false)}>✕</button>
+                </div>
+                {limitsLoading ? (
+                  <div className="limits-loading">লোড হচ্ছে...</div>
+                ) : githubLimits?.error ? (
+                  <div className="limits-error">❌ {githubLimits.error}</div>
+                ) : githubLimits ? (
+                  <div className="limits-body">
+                    <div className="limits-bar-track">
+                      <div
+                        className="limits-bar-fill"
+                        style={{
+                          width: `${githubLimits.pct}%`,
+                          background: githubLimits.pct > 80 ? '#ef4444' : githubLimits.pct > 50 ? '#f59e0b' : '#10b981'
+                        }}
+                      />
+                    </div>
+                    <div className="limits-row">
+                      <span>✅ বাকি আছে</span>
+                      <strong style={{ color: githubLimits.remaining < 500 ? '#ef4444' : '#10b981' }}>
+                        {githubLimits.remaining.toLocaleString()} / {githubLimits.limit.toLocaleString()}
+                      </strong>
+                    </div>
+                    <div className="limits-row">
+                      <span>📤 ব্যবহার হয়েছে</span>
+                      <strong>{githubLimits.used.toLocaleString()} ({githubLimits.pct}%)</strong>
+                    </div>
+                    <div className="limits-row">
+                      <span>🔄 রিসেট হবে</span>
+                      <strong>{githubLimits.resetAt}</strong>
+                    </div>
+                    <div className="limits-note">Vercel: free tier 100k func/mo</div>
+                  </div>
+                ) : null}
+              </div>
+            )}
+          </div>
+
           <button
             className="icon-button"
             onClick={() => setShowVideoModal(true)}
