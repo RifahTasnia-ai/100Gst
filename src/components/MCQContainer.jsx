@@ -29,9 +29,11 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
   const [visitedQuestions, setVisitedQuestions] = useState(new Set([0]))
   const [timeLeft, setTimeLeft] = useState(DURATION_SECONDS)
   const [markedForReview, setMarkedForReview] = useState(new Set())
-  const [examStartTime] = useState(Date.now()) // Track when exam started (used for local display only)
   const [pendingSent, setPendingSent] = useState(false) // Track if pending status was sent
   const [submissionStatus, setSubmissionStatus] = useState({ status: 'idle', retryCount: 0 })
+
+  // examStartTime stored in a ref AND persisted in localStorage so it survives tab switches/refreshes
+  const examStartTimeRef = useRef(null)
 
   // Refs for throttled save
   const lastSaveRef = useRef(0)
@@ -184,6 +186,8 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
       answers,
       currentIndex: currentQuestionIndex,
       timeLeft: timeLeftRef.current,
+      // CRITICAL: always persist the real start time so tab-switching can't cheat the timer
+      examStartTime: examStartTimeRef.current,
       visited: Array.from(visitedQuestions),
       marked: Array.from(markedForReview)
     }
@@ -212,12 +216,29 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
         setAnswers(data.answers || {})
         const maxIndex = Math.max(0, questions.length - 1)
         setCurrentQuestionIndex(Math.min(data.currentIndex || 0, maxIndex))
-        setTimeLeft(data.timeLeft ?? DURATION_SECONDS)
         setVisitedQuestions(new Set(data.visited || [0]))
         setMarkedForReview(new Set(data.marked || []))
+
+        // Restore wall-clock start time so timer can't be cheated by tab switching
+        if (data.examStartTime) {
+          examStartTimeRef.current = data.examStartTime
+          // Compute REAL time left using wall-clock, not saved snapshot
+          const elapsed = Math.floor((Date.now() - data.examStartTime) / 1000)
+          const realTimeLeft = Math.max(DURATION_SECONDS - elapsed, 0)
+          setTimeLeft(realTimeLeft)
+        } else {
+          // First ever load — record the real start time
+          const now = Date.now()
+          examStartTimeRef.current = now
+          setTimeLeft(data.timeLeft ?? DURATION_SECONDS)
+        }
       } catch (e) {
         console.error('Failed to load saved state', e)
       }
+    } else {
+      // Brand new exam — record start time
+      const now = Date.now()
+      examStartTimeRef.current = now
     }
   }, [studentName, questions])
 
@@ -227,22 +248,53 @@ function MCQContainer({ questions, studentName, questionFile = 'questions.json' 
     return () => clearTimeout(saveTimerRef.current)
   }, [saveStateToStorage])
 
-  // Timer - must be after handleSubmit definition
+  // Timer — uses wall-clock (Date.now) so background tabs / mobile tab-switching cannot cheat
   useEffect(() => {
     if (status !== STATUS.RUNNING || timeLeft <= 0) return
 
     const interval = setInterval(() => {
-      setTimeLeft(prev => {
-        if (prev <= 1) {
-          handleSubmit()
-          return 0
-        }
-        return prev - 1
-      })
+      if (!examStartTimeRef.current) return
+      const elapsed = Math.floor((Date.now() - examStartTimeRef.current) / 1000)
+      const remaining = Math.max(DURATION_SECONDS - elapsed, 0)
+      setTimeLeft(remaining)
+      if (remaining <= 0) {
+        handleSubmit()
+      }
     }, 1000)
 
     return () => clearInterval(interval)
-  }, [status, timeLeft, handleSubmit])
+  }, [status, handleSubmit])
+
+  // Correct timer & send Spectre heartbeat when tab becomes visible again after being hidden
+  useEffect(() => {
+    if (status !== STATUS.RUNNING) return
+
+    const onVisibilityChange = () => {
+      if (document.visibilityState === 'visible') {
+        // Correct the timer immediately using real wall-clock
+        if (examStartTimeRef.current) {
+          const elapsed = Math.floor((Date.now() - examStartTimeRef.current) / 1000)
+          const remaining = Math.max(DURATION_SECONDS - elapsed, 0)
+          setTimeLeft(remaining)
+          if (remaining <= 0) {
+            handleSubmit()
+            return
+          }
+        }
+        // Send Spectre heartbeat so admin sees the student is still active
+        savePendingStudent(studentName, null, {
+          answers,
+          currentQuestion: currentQuestionIndex + 1,
+          answeredCount: Object.keys(answers).length,
+          totalQuestions: questions?.length || 0,
+          questionFile
+        }).catch(err => console.error('Visibility heartbeat failed:', err))
+      }
+    }
+
+    document.addEventListener('visibilitychange', onVisibilityChange)
+    return () => document.removeEventListener('visibilitychange', onVisibilityChange)
+  }, [status, studentName, answers, currentQuestionIndex, questions, questionFile, handleSubmit])
 
   // Safety check for current question index
   useEffect(() => {
