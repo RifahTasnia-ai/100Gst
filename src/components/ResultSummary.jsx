@@ -97,6 +97,25 @@ function ResultSummary({ questions, answers, studentName, score, onRestart, ques
           </span>
         </div>
         <div className="rs-q-text bengali" dangerouslySetInnerHTML={{ __html: renderLatex(q.question) }} />
+
+        {/* Render SVG Diagram if present */}
+        {q.hasDiagram && q.svg_code && (
+          <div className="rs-q-diagram" dangerouslySetInnerHTML={{ __html: q.svg_code }} style={{ margin: '1rem 0', overflowX: 'auto' }} />
+        )}
+
+        {/* Render Raster Image if present */}
+        {q.image && !q.svg_code && (
+          <div className="rs-q-image-container" style={{ margin: '1rem 0', textAlign: 'center', background: '#f8fafc', padding: '1rem', borderRadius: '8px' }}>
+            <img
+              src={q.image}
+              alt={`Diagram for question ${q.id}`}
+              className="rs-q-image"
+              style={{ maxWidth: '100%', maxHeight: '250px', objectFit: 'contain', borderRadius: '4px' }}
+              loading="lazy"
+            />
+          </div>
+        )}
+
         <div className="rs-options">
           {options.map(opt => {
             let optCls = ''
